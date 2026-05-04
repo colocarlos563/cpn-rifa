@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CPN Golf 2026 — La Rifa</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #2d5a27;
+      background-image: radial-gradient(circle, #3a7a32 18%, transparent 18%),
+                        radial-gradient(circle, #3a7a32 18%, transparent 18%);
+      background-size: 60px 60px;
+      background-position: 0 0, 30px 30px;
+      color: white;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .logo-header {
+      text-align: center;
+      margin-bottom: 24px;
+      padding: 24px 20px 20px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .logo-school {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 10px;
+    }
+
+    .logo-cpn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .logo-cpn-text {
+      font-size: 5rem;
+      font-weight: 900;
+      color: white;
+      line-height: 1;
+      letter-spacing: -4px;
+      font-family: Georgia, serif;
+    }
+
+    .logo-ball {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-left: -8px;
+    }
+
+    .logo-ball-circle {
+      width: 52px;
+      height: 52px;
+      border: 3px solid white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      color: white;
+      font-weight: 700;
+      position: relative;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .logo-year {
+      font-size: 0.8rem;
+      color: white;
+      font-weight: 700;
+      margin-bottom: 2px;
+      letter-spacing: 1px;
+    }
+
+    .logo-golf {
+      font-size: 2rem;
+      color: white;
+      font-style: italic;
+      font-family: Georgia, 'Times New Roman', serif;
+      font-weight: 400;
+      letter-spacing: 2px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: white;
+      margin-bottom: 2px;
+      letter-spacing: 1px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+      font-style: italic;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      backdrop-filter: blur(4px);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 2px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.1);
+      color: white;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]::placeholder { color: rgba(255,255,255,0.4); }
+    input[type="text"]:focus { border-color: #f0c040; }
+
+    button {
+      padding: 12px 20px;
+      border-radius: 10px;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-add { background: #f0c040; color: #0a3d1f; }
+    .btn-add:hover { background: #ffd700; transform: scale(1.03); }
+
+    .btn-draw {
+      width: 100%;
+      padding: 18px;
+      font-size: 1.2rem;
+      background: linear-gradient(135deg, #c8a000, #f0c040);
+      color: #1a3d10;
+      border-radius: 12px;
+      margin-top: 8px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .btn-draw:hover { background: linear-gradient(135deg, #f0c040, #ffd700); transform: scale(1.01); }
+    .btn-draw:disabled { background: #555; cursor: not-allowed; transform: none; }
+
+    .btn-export { background: #2196F3; color: white; font-size: 0.85rem; padding: 8px 14px; }
+    .btn-export:hover { background: #42a5f5; }
+
+    .btn-reset { background: rgba(255,255,255,0.1); color: #ff6b6b; font-size: 0.85rem; padding: 8px 14px; border: 1px solid #ff6b6b; }
+    .btn-reset:hover { background: rgba(255,107,107,0.2); }
+
+    .stats {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .count {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #f0c040;
+    }
+
+    .actions { display: flex; gap: 8px; }
+
+    .names-list {
+      max-height: 180px;
+      overflow-y: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .name-tag {
+      background: rgba(255,255,255,0.12);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 0.88rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .name-tag .remove {
+      cursor: pointer;
+      color: rgba(255,255,255,0.4);
+      font-size: 1rem;
+      line-height: 1;
+    }
+    .name-tag .remove:hover { color: #ff6b6b; }
+
+    .draw-count-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .draw-count-row label { color: #a8d5a2; font-size: 0.9rem; }
+
+    select {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 2px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.1);
+      color: white;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    select:focus { border-color: #f0c040; }
+    option { background: #0a3d1f; }
+
+    /* Winner display */
+    .winner-display {
+      text-align: center;
+      padding: 20px 10px;
+      display: none;
+    }
+
+    .winner-display.active { display: block; }
+
+    .winner-label {
+      font-size: 0.85rem;
+      color: #a8d5a2;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    .winner-name {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: #f0c040;
+      animation: pop 0.4s ease;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.5); opacity: 0; }
+      70% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .spinning {
+      animation: spin-names 0.08s infinite;
+    }
+
+    @keyframes spin-names {
+      0% { opacity: 0.3; }
+      50% { opacity: 1; }
+      100% { opacity: 0.3; }
+    }
+
+    /* Winners log */
+    .winners-log { margin-top: 4px; }
+
+    .winner-entry {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: rgba(240,192,64,0.1);
+      border: 1px solid rgba(240,192,64,0.3);
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+
+    .winner-entry .place {
+      font-size: 0.8rem;
+      color: #f0c040;
+      font-weight: 700;
+      width: 28px;
+    }
+
+    .winner-entry .wname {
+      flex: 1;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .winner-entry .wtime {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .empty-msg {
+      color: rgba(255,255,255,0.3);
+      font-size: 0.9rem;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .section-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #a8d5a2;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo-header">
+      <div class="logo-school">Colegio Puertorriqueño de Niñas</div>
+      <div class="logo-cpn">
+        <div class="logo-cpn-text">cpn</div>
+        <div class="logo-ball">
+          <div class="logo-year">2026</div>
+          <div class="logo-ball-circle">⛳</div>
+        </div>
+      </div>
+      <div class="logo-golf">Golf</div>
+    </div>
+    <h1>La Rifa</h1>
+    <p class="subtitle">Sorteo de Premios</p>
+
+    <!-- Registration -->
+    <div class="card">
+      <div class="section-title">Registro de Participantes</div>
+      <div class="input-row">
+        <input type="text" id="nameInput" placeholder="Nombre del participante..." autocomplete="off" />
+        <button class="btn-add" onclick="addName()">Add</button>
+      </div>
+      <div class="stats" style="margin-top:16px;">
+        <span class="count" id="countDisplay">0 participants</span>
+        <div class="actions">
+          <button class="btn-export" onclick="exportCSV()">Exportar CSV</button>
+          <button class="btn-reset" onclick="confirmReset()">Reiniciar</button>
+        </div>
+      </div>
+      <div class="names-list" id="namesList"></div>
+    </div>
+
+    <!-- Draw -->
+    <div class="card">
+      <div class="section-title">Sorteo</div>
+      <div class="draw-count-row">
+        <label>Número de ganadores:</label>
+        <select id="drawCount">
+          <option value="1">1 ganador</option>
+          <option value="2">2 ganadores</option>
+          <option value="3">3 ganadores</option>
+          <option value="4" selected>4 ganadores</option>
+          <option value="5">5 ganadores</option>
+        </select>
+      </div>
+      <div class="winner-display" id="winnerDisplay">
+        <div class="winner-label" id="winnerLabel">Winner</div>
+        <div class="winner-name" id="winnerName"></div>
+      </div>
+      <button class="btn-draw" id="drawBtn" onclick="drawWinner()">🎯 Draw Winner</button>
+    </div>
+
+    <!-- Winners Log -->
+    <div class="card">
+      <div class="section-title">Ganadores</div>
+      <div class="winners-log" id="winnersLog">
+        <div class="empty-msg">Aún no hay ganadores</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let names = JSON.parse(localStorage.getItem('golf_names') || '[]');
+    let winners = JSON.parse(localStorage.getItem('golf_winners') || '[]');
+
+    function save() {
+      localStorage.setItem('golf_names', JSON.stringify(names));
+      localStorage.setItem('golf_winners', JSON.stringify(winners));
+    }
+
+    function render() {
+      // Count
+      document.getElementById('countDisplay').textContent =
+        names.length + ' participante' + (names.length !== 1 ? 's' : '');
+
+      // Names list
+      const list = document.getElementById('namesList');
+      if (names.length === 0) {
+        list.innerHTML = '<div class="empty-msg">Aún no hay participantes</div>';
+      } else {
+        list.innerHTML = names.map((n, i) =>
+          `<div class="name-tag">${n} <span class="remove" onclick="removeName(${i})">×</span></div>`
+        ).join('');
+      }
+
+      // Winners log
+      const log = document.getElementById('winnersLog');
+      if (winners.length === 0) {
+        log.innerHTML = '<div class="empty-msg">Aún no hay ganadores</div>';
+      } else {
+        log.innerHTML = winners.map((w, i) =>
+          `<div class="winner-entry">
+            <span class="place">#${i+1}</span>
+            <span class="wname">${w.name}</span>
+            <span class="wtime">${w.time}</span>
+          </div>`
+        ).join('');
+      }
+
+      // Draw button state
+      const available = names.filter(n => !winners.find(w => w.name === n));
+      const needed = parseInt(document.getElementById('drawCount').value);
+      document.getElementById('drawBtn').disabled = available.length === 0;
+      document.getElementById('drawBtn').textContent =
+        winners.length > 0 && winners.length < needed
+          ? `🎯 Sortear Ganador #${winners.length + 1}`
+          : winners.length >= needed
+          ? '✅ Todos los ganadores seleccionados — Reiniciar para comenzar de nuevo'
+          : '🎯 Sortear Ganador';
+      document.getElementById('drawBtn').disabled =
+        available.length === 0 || winners.length >= needed;
+    }
+
+    function addName() {
+      const input = document.getElementById('nameInput');
+      const name = input.value.trim();
+      if (!name) return;
+      names.push(name);
+      save();
+      render();
+      input.value = '';
+      input.focus();
+    }
+
+    document.getElementById('nameInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') addName();
+    });
+
+    function removeName(i) {
+      if (confirm(`¿Eliminar "${names[i]}" de la lista?`)) {
+        names.splice(i, 1);
+        save();
+        render();
+      }
+    }
+
+    function drawWinner() {
+      const available = names.filter(n => !winners.find(w => w.name === n));
+      if (available.length === 0) return;
+
+      const display = document.getElementById('winnerDisplay');
+      const nameEl = document.getElementById('winnerName');
+      const label = document.getElementById('winnerLabel');
+      display.classList.add('active');
+
+      const needed = parseInt(document.getElementById('drawCount').value);
+      label.textContent = `Ganador #${winners.length + 1}`;
+
+      // Spin animation
+      let spins = 0;
+      const maxSpins = 20;
+      nameEl.classList.add('spinning');
+
+      const interval = setInterval(() => {
+        const rand = available[Math.floor(Math.random() * available.length)];
+        nameEl.textContent = rand;
+        spins++;
+        if (spins >= maxSpins) {
+          clearInterval(interval);
+          nameEl.classList.remove('spinning');
+          // Pick final winner
+          const winner = available[Math.floor(Math.random() * available.length)];
+          nameEl.textContent = winner;
+          const now = new Date().toLocaleTimeString();
+          winners.push({ name: winner, time: now });
+          save();
+          render();
+        }
+      }, 80);
+    }
+
+    function confirmReset() {
+      if (confirm(`¿Reiniciar todo? Esto eliminará los ${names.length} participantes y ${winners.length} ganadores.\n\nExporta el CSV primero si necesitas un respaldo.`)) {
+        names = [];
+        winners = [];
+        save();
+        document.getElementById('winnerDisplay').classList.remove('active');
+        render();
+      }
+    }
+
+    function exportCSV() {
+      const rows = [['Nombre', 'Ganador', 'Hora del Sorteo']];
+      names.forEach(n => {
+        const win = winners.find(w => w.name === n);
+        rows.push([n, win ? 'SÍ' : 'No', win ? win.time : '']);
+      });
+      const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'golf-giveaway.csv';
+      a.click();
+    }
+
+    render();
+  </script>
+</body>
+</html>
