@@ -364,6 +364,81 @@
       100% { transform: scale(1); opacity: 1; }
     }
 
+    /* Raffle */
+    .raffle-stage {
+      text-align: center;
+      padding: 28px 20px;
+      background: rgba(255,158,199,0.08);
+      border: 1px solid rgba(255,158,199,0.25);
+      border-radius: 14px;
+      margin-bottom: 18px;
+      min-height: 130px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    .raffle-label {
+      font-size: 0.78rem; letter-spacing: 2px;
+      text-transform: uppercase; color: #ff9ec7;
+      font-weight: 800; margin-bottom: 8px;
+    }
+    .raffle-name {
+      font-size: 2rem; font-weight: 900;
+      color: #f0c040; line-height: 1.1;
+      letter-spacing: 0.5px;
+      animation: pop 0.4s ease;
+    }
+    .raffle-name.spinning { animation: spin-names 0.08s infinite; }
+    .raffle-meta {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.6);
+      margin-top: 6px;
+    }
+    .draw-count-row {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+    }
+    .draw-count-row label { color: #a8d5a2; font-size: 0.9rem; }
+    .draw-count-row select {
+      padding: 8px 12px; border-radius: 8px;
+      border: 2px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.1);
+      color: white; font-size: 0.95rem;
+      outline: none; font-family: inherit;
+    }
+    .draw-count-row select:focus { border-color: #f0c040; }
+    .draw-count-row select option { background: #0a3d1f; }
+    .btn-draw {
+      width: 100%; padding: 18px;
+      font-size: 1.1rem;
+      background: linear-gradient(135deg, #c8a000, #f0c040);
+      color: #1a3d10;
+      border: none; border-radius: 12px;
+      font-weight: 900; letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer; font-family: inherit;
+    }
+    .btn-draw:active { transform: scale(0.98); }
+    .btn-draw:disabled {
+      background: #555; cursor: not-allowed;
+      opacity: 0.6; transform: none;
+    }
+    .winner-entry {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px;
+      background: rgba(240,192,64,0.1);
+      border: 1px solid rgba(240,192,64,0.3);
+      border-radius: 10px; margin-bottom: 6px;
+    }
+    .winner-entry .place {
+      font-size: 0.8rem; color: #f0c040;
+      font-weight: 700; width: 28px; flex-shrink: 0;
+    }
+    .winner-entry .wname {
+      flex: 1; font-weight: 600; font-size: 0.95rem;
+    }
+    .winner-entry .wmeta {
+      font-size: 0.75rem; color: rgba(255,255,255,0.55);
+    }
+
     /* Report */
     .report-section { margin-bottom: 22px; }
     .report-section h3 {
@@ -480,7 +555,10 @@
             <div class="subt">Check-in · Bahia Beach</div>
           </div>
         </div>
-        <button class="header-btn" onclick="openReport()">Reporte</button>
+        <div style="display:flex; gap:8px;">
+          <button class="header-btn" onclick="openRaffle()">🎟️ Sorteo</button>
+          <button class="header-btn" onclick="openReport()">Reporte</button>
+        </div>
       </div>
 
       <div class="stats">
@@ -575,6 +653,46 @@
     <button class="splash-next" onclick="closeSplash()">Siguiente Jugador →</button>
   </div>
 
+  <!-- Raffle modal -->
+  <div class="modal-backdrop" id="raffleModal">
+    <div class="modal" style="max-width: 560px;">
+      <h2>🎟️ Sorteo</h2>
+      <div class="modal-sub" id="raffle-sub"></div>
+
+      <div class="raffle-stage">
+        <div class="raffle-label" id="raffle-label">Listo para sortear</div>
+        <div class="raffle-name" id="raffle-name">—</div>
+        <div class="raffle-meta" id="raffle-meta"></div>
+      </div>
+
+      <div class="draw-count-row">
+        <label for="raffle-count">Ganadores totales:</label>
+        <select id="raffle-count">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3" selected>3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="8">8</option>
+          <option value="10">10</option>
+        </select>
+      </div>
+
+      <button class="btn-draw" id="raffle-btn" onclick="drawRaffleWinner()">🎯 Sortear Ganador</button>
+
+      <div class="report-section" style="margin-top:18px;">
+        <h3 id="winners-title">Ganadores</h3>
+        <div id="winners-list"></div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeRaffle()">Cerrar</button>
+        <button class="btn btn-danger" onclick="confirmResetWinners()">Reiniciar sorteo</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Report modal -->
   <div class="modal-backdrop" id="reportModal">
     <div class="modal" style="max-width: 640px;">
@@ -619,6 +737,12 @@
     const PIN = 'CPN2026';
     const PIN_KEY = 'cpn_pin_ok_v1';
     const CHECKIN_KEY = 'cpn_checkins_v2';
+    const WINNERS_KEY = 'cpn_winners_v1';
+    let winners = JSON.parse(localStorage.getItem(WINNERS_KEY) || '[]');
+
+    function saveWinners() {
+      localStorage.setItem(WINNERS_KEY, JSON.stringify(winners));
+    }
 
     function checkPinUnlock() {
       if (localStorage.getItem(PIN_KEY) === '1') {
@@ -929,6 +1053,139 @@
       // Reset for next registration
       clearSearch();
     }
+
+    // === Raffle ===
+    function eligibleForRaffle() {
+      return SEED_PLAYERS.filter(p => {
+        const c = checkins[p.num];
+        if (!c || !c.raffle) return false;
+        if (winners.find(w => w.pnum === p.num)) return false;
+        return true;
+      });
+    }
+
+    function renderWinnersList() {
+      const list = document.getElementById('winners-list');
+      if (winners.length === 0) {
+        list.innerHTML = '<div class="empty" style="padding:14px;">Aún no hay ganadores</div>';
+      } else {
+        list.innerHTML = winners.map((w, i) => `
+          <div class="winner-entry">
+            <span class="place">#${i+1}</span>
+            <span class="wname">${escapeHtml(w.name)}</span>
+            <span class="wmeta">${escapeHtml(w.sponsor || '')} · ${escapeHtml(w.time || '')}</span>
+          </div>
+        `).join('');
+      }
+      document.getElementById('winners-title').textContent = `Ganadores (${winners.length})`;
+    }
+
+    function renderRaffleStage() {
+      const eligible = eligibleForRaffle();
+      const total = SEED_PLAYERS.filter(p => {
+        const c = checkins[p.num];
+        return c && c.raffle;
+      }).length;
+      const needed = parseInt(document.getElementById('raffle-count').value);
+      const btn = document.getElementById('raffle-btn');
+
+      document.getElementById('raffle-sub').textContent =
+        `${total} inscritos al sorteo · ${eligible.length} elegibles · ${winners.length}/${needed} ganadores`;
+
+      if (eligible.length === 0 && winners.length === 0) {
+        btn.textContent = '🎟️ Nadie inscrito al sorteo';
+        btn.disabled = true;
+      } else if (winners.length >= needed) {
+        btn.textContent = '✅ Sorteo completado';
+        btn.disabled = true;
+      } else if (eligible.length === 0) {
+        btn.textContent = '✅ No quedan elegibles';
+        btn.disabled = true;
+      } else {
+        btn.textContent = winners.length > 0
+          ? `🎯 Sortear Ganador #${winners.length + 1}`
+          : '🎯 Sortear Ganador';
+        btn.disabled = false;
+      }
+    }
+
+    function openRaffle() {
+      document.getElementById('raffle-name').textContent = '—';
+      document.getElementById('raffle-label').textContent = 'Listo para sortear';
+      document.getElementById('raffle-meta').textContent = '';
+      renderWinnersList();
+      renderRaffleStage();
+      document.getElementById('raffleModal').classList.add('active');
+    }
+
+    function closeRaffle() {
+      document.getElementById('raffleModal').classList.remove('active');
+    }
+
+    function drawRaffleWinner() {
+      const eligible = eligibleForRaffle();
+      if (eligible.length === 0) return;
+
+      const nameEl = document.getElementById('raffle-name');
+      const labelEl = document.getElementById('raffle-label');
+      const metaEl = document.getElementById('raffle-meta');
+      const btn = document.getElementById('raffle-btn');
+      btn.disabled = true;
+      labelEl.textContent = `Sorteando Ganador #${winners.length + 1}…`;
+      metaEl.textContent = '';
+      nameEl.classList.add('spinning');
+
+      let spins = 0;
+      const maxSpins = 22;
+      const interval = setInterval(() => {
+        const rand = eligible[Math.floor(Math.random() * eligible.length)];
+        const c = checkins[rand.num];
+        nameEl.textContent = c.alternateName || rand.name;
+        spins++;
+        if (spins >= maxSpins) {
+          clearInterval(interval);
+          nameEl.classList.remove('spinning');
+          // Re-pick fresh in case eligibility shifted (it didn't here, but defensive)
+          const final = eligible[Math.floor(Math.random() * eligible.length)];
+          const fc = checkins[final.num];
+          const display = fc.alternateName || final.name;
+          nameEl.textContent = display;
+          labelEl.textContent = `🎉 Ganador #${winners.length + 1}`;
+          metaEl.textContent = `${final.sponsor || 'Individual'} · Tee ${final.tee}`;
+          const now = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+          winners.push({
+            pnum: final.num,
+            name: display,
+            sponsor: final.sponsor || '',
+            tee: final.tee,
+            time: now,
+          });
+          saveWinners();
+          renderWinnersList();
+          renderRaffleStage();
+        }
+      }, 80);
+    }
+
+    function confirmResetWinners() {
+      if (winners.length === 0) {
+        alert('No hay ganadores para reiniciar.');
+        return;
+      }
+      if (confirm(`¿Reiniciar el sorteo? Se eliminarán los ${winners.length} ganador(es) actuales.`)) {
+        winners = [];
+        saveWinners();
+        document.getElementById('raffle-name').textContent = '—';
+        document.getElementById('raffle-label').textContent = 'Listo para sortear';
+        document.getElementById('raffle-meta').textContent = '';
+        renderWinnersList();
+        renderRaffleStage();
+      }
+    }
+
+    document.addEventListener('change', e => {
+      if (e.target && e.target.id === 'raffle-count') renderRaffleStage();
+    });
 
     // === Report ===
     function openReport() {
