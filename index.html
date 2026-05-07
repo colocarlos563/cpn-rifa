@@ -8,6 +8,31 @@
   <title>Torneo CPN 2026 — Check-in</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import {
+      getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot,
+      addDoc, query, orderBy, getDocs, writeBatch
+    } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDseQrWnydirdsMTTzDbg9cdVMmYPly94U",
+      authDomain: "can-checkin.firebaseapp.com",
+      projectId: "can-checkin",
+      storageBucket: "can-checkin.firebasestorage.app",
+      messagingSenderId: "227427880420",
+      appId: "1:227427880420:web:1affc92a279efb049a8bf1"
+    };
+
+    const fbApp = initializeApp(firebaseConfig);
+    const db = getFirestore(fbApp);
+
+    window.fb = {
+      db, collection, doc, setDoc, deleteDoc, onSnapshot,
+      addDoc, query, orderBy, getDocs, writeBatch
+    };
+    window.dispatchEvent(new Event('fb-ready'));
+  </script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
@@ -782,6 +807,85 @@
       localStorage.setItem(CHECKIN_KEY, JSON.stringify(checkins));
     }
 
+    // === Firestore real-time sync ===
+    let fbReady = false;
+
+    function withFb(cb) {
+      if (window.fb) cb();
+      else window.addEventListener('fb-ready', () => cb(), { once: true });
+    }
+
+    withFb(() => {
+      fbReady = true;
+      const { db, collection, onSnapshot, query, orderBy } = window.fb;
+
+      onSnapshot(collection(db, 'checkins'),
+        (snap) => {
+          const fresh = {};
+          snap.forEach(d => { fresh[d.id] = d.data(); });
+          checkins = fresh;
+          localStorage.setItem(CHECKIN_KEY, JSON.stringify(checkins));
+          if (typeof render === 'function') render();
+        },
+        (err) => console.error('checkins sync error:', err)
+      );
+
+      onSnapshot(query(collection(db, 'winners'), orderBy('createdAt')),
+        (snap) => {
+          winners = [];
+          snap.forEach(d => winners.push({ _id: d.id, ...d.data() }));
+          localStorage.setItem(WINNERS_KEY, JSON.stringify(winners));
+          if (document.getElementById('raffleModal').classList.contains('active')) {
+            renderWinnersList();
+            renderRaffleStage();
+          }
+        },
+        (err) => console.error('winners sync error:', err)
+      );
+    });
+
+    async function fbSetCheckin(pnum, data) {
+      if (!fbReady) return;
+      try {
+        const { db, doc, setDoc } = window.fb;
+        await setDoc(doc(db, 'checkins', String(pnum)), data);
+      } catch (e) { console.error('setCheckin failed:', e); }
+    }
+    async function fbDeleteCheckin(pnum) {
+      if (!fbReady) return;
+      try {
+        const { db, doc, deleteDoc } = window.fb;
+        await deleteDoc(doc(db, 'checkins', String(pnum)));
+      } catch (e) { console.error('deleteCheckin failed:', e); }
+    }
+    async function fbAddWinner(winner) {
+      if (!fbReady) return;
+      try {
+        const { db, collection, addDoc } = window.fb;
+        await addDoc(collection(db, 'winners'), { ...winner, createdAt: Date.now() });
+      } catch (e) { console.error('addWinner failed:', e); }
+    }
+    async function fbResetCheckins() {
+      if (!fbReady) return;
+      try {
+        const { db, collection, getDocs, writeBatch } = window.fb;
+        const snap = await getDocs(collection(db, 'checkins'));
+        const batch = writeBatch(db);
+        snap.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+      } catch (e) { console.error('resetCheckins failed:', e); }
+    }
+    async function fbResetWinners() {
+      if (!fbReady) return;
+      try {
+        const { db, collection, getDocs, writeBatch } = window.fb;
+        const snap = await getDocs(collection(db, 'winners'));
+        const batch = writeBatch(db);
+        snap.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+      } catch (e) { console.error('resetWinners failed:', e); }
+    }
+
     function escapeHtml(s) {
       return String(s).replace(/[&<>"']/g, c => ({
         '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
@@ -1010,13 +1114,15 @@
       const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const existing = checkins[modalPlayer.num];
 
-      checkins[modalPlayer.num] = {
+      const record = {
         time: existing ? existing.time : now,
         alternateName: isAlt ? enteredName : null,
         raffle: raffle,
         handicap: (handicap !== null && !isNaN(handicap)) ? handicap : null,
       };
+      checkins[modalPlayer.num] = record;
       save();
+      fbSetCheckin(modalPlayer.num, record);
       const wasNew = !existing;
       closeCheckin();
       render();
@@ -1027,8 +1133,10 @@
     function undoCheckin() {
       if (!modalPlayer) return;
       if (confirm(`¿Deshacer check-in de ${getDisplayName(modalPlayer)}?`)) {
-        delete checkins[modalPlayer.num];
+        const pnum = modalPlayer.num;
+        delete checkins[pnum];
         save();
+        fbDeleteCheckin(pnum);
         render();
         closeCheckin();
       }
@@ -1153,14 +1261,16 @@
           labelEl.textContent = `🎉 Ganador #${winners.length + 1}`;
           metaEl.textContent = `${final.sponsor || 'Individual'} · Tee ${final.tee}`;
           const now = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
-          winners.push({
+          const winnerRecord = {
             pnum: final.num,
             name: display,
             sponsor: final.sponsor || '',
             tee: final.tee,
             time: now,
-          });
+          };
+          winners.push(winnerRecord);
           saveWinners();
+          fbAddWinner(winnerRecord);
           renderWinnersList();
           renderRaffleStage();
         }
@@ -1175,6 +1285,7 @@
       if (confirm(`¿Reiniciar el sorteo? Se eliminarán los ${winners.length} ganador(es) actuales.`)) {
         winners = [];
         saveWinners();
+        fbResetWinners();
         document.getElementById('raffle-name').textContent = '—';
         document.getElementById('raffle-label').textContent = 'Listo para sortear';
         document.getElementById('raffle-meta').textContent = '';
@@ -1445,6 +1556,7 @@
       if (confirm(`¿Reiniciar todos los ${checkedIn} check-ins?\n\nEl roster de jugadores se mantiene. Exporta el CSV primero si necesitas un respaldo.`)) {
         checkins = {};
         save();
+        fbResetCheckins();
         render();
         closeReport();
       }
