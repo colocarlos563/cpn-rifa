@@ -6,6 +6,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Torneo CPN 2026 — Check-in</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
@@ -601,7 +603,8 @@
 
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="closeReport()">Cerrar</button>
-        <button class="btn btn-primary" onclick="exportCSV()">Exportar CSV</button>
+        <button class="btn btn-primary" onclick="exportCSV()">CSV</button>
+        <button class="btn btn-primary" onclick="exportPDF()">PDF</button>
       </div>
       <div class="modal-actions">
         <button class="btn btn-danger" onclick="confirmReset()">Reiniciar Check-ins</button>
@@ -1040,6 +1043,140 @@
       a.href = URL.createObjectURL(blob);
       a.download = `cpn-checkin-${new Date().toISOString().slice(0,10)}.csv`;
       a.click();
+    }
+
+    function exportPDF() {
+      if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert('La librería de PDF no cargó. Verifica tu conexión a internet.');
+        return;
+      }
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+
+      const total = SEED_PLAYERS.length;
+      const checkedIn = Object.keys(checkins).length;
+      const pending = total - checkedIn;
+      const raffleCount = Object.values(checkins).filter(c => c.raffle).length;
+      const altCount = Object.values(checkins).filter(c => c.alternateName).length;
+
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('es-PR', { year:'numeric', month:'long', day:'numeric' });
+      const timeStr = now.toLocaleTimeString('es-PR', { hour:'2-digit', minute:'2-digit' });
+
+      // Header
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(18);
+      doc.text('Torneo CPN 2026 — Check-in', 40, 50);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(100);
+      doc.text(`Bahia Beach · Reporte generado ${dateStr} ${timeStr}`, 40, 66);
+      doc.text(
+        `${checkedIn}/${total} registrados  ·  ${pending} pendientes  ·  ${raffleCount} en sorteo  ·  ${altCount} alternates`,
+        40, 80
+      );
+      doc.setTextColor(0);
+
+      // Roster table sorted by tee
+      const sorted = [...SEED_PLAYERS].sort((a,b) => compareTee(a.tee, b.tee) || a.num - b.num);
+      const body = sorted.map(p => {
+        const c = checkins[p.num];
+        const display = c ? (c.alternateName || p.name) : p.name;
+        const orig = (c && c.alternateName) ? p.name : '';
+        const status = c ? (c.alternateName ? 'Alternate' : 'Registrado') : 'No-show';
+        const hcp = (c && c.handicap !== null && c.handicap !== undefined && c.handicap !== '')
+          ? String(c.handicap) : '';
+        return [
+          String(p.num),
+          p.tee,
+          display,
+          orig,
+          p.sponsor || '',
+          hcp,
+          c && c.raffle ? '✓' : '',
+          status,
+          c ? (c.time || '') : ''
+        ];
+      });
+
+      doc.autoTable({
+        startY: 96,
+        head: [['#','Tee','Nombre','Original','Sponsor','HCP','Sorteo','Estado','Hora']],
+        body: body,
+        theme: 'striped',
+        headStyles: { fillColor: [45, 90, 39], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+        bodyStyles: { fontSize: 8.5 },
+        alternateRowStyles: { fillColor: [245, 248, 244] },
+        columnStyles: {
+          0: { cellWidth: 28, halign: 'center' },
+          1: { cellWidth: 36, halign: 'center', fontStyle: 'bold' },
+          2: { cellWidth: 110 },
+          3: { cellWidth: 90, textColor: [120, 120, 120] },
+          4: { cellWidth: 100 },
+          5: { cellWidth: 32, halign: 'center' },
+          6: { cellWidth: 38, halign: 'center' },
+          7: { cellWidth: 60 },
+          8: { cellWidth: 38, halign: 'center' },
+        },
+        didParseCell: (data) => {
+          if (data.section === 'body' && data.column.index === 7) {
+            const v = data.cell.raw;
+            if (v === 'No-show') data.cell.styles.textColor = [200, 50, 50];
+            else if (v === 'Alternate') data.cell.styles.textColor = [40, 110, 180];
+            else if (v === 'Registrado') data.cell.styles.textColor = [40, 130, 60];
+          }
+        },
+        margin: { left: 40, right: 40 },
+        didDrawPage: (data) => {
+          const pageCount = doc.internal.getNumberOfPages();
+          const pageNum = data.pageNumber;
+          doc.setFontSize(8);
+          doc.setTextColor(140);
+          doc.text(
+            `Página ${pageNum} de ${pageCount}`,
+            doc.internal.pageSize.getWidth() - 80,
+            doc.internal.pageSize.getHeight() - 20
+          );
+          doc.setTextColor(0);
+        }
+      });
+
+      // No-shows summary on a fresh page
+      const noshows = SEED_PLAYERS.filter(p => !isCheckedIn(p));
+      if (noshows.length > 0) {
+        doc.addPage();
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.text(`No-shows (${noshows.length})`, 40, 50);
+
+        const teeMap = {};
+        SEED_PLAYERS.forEach(p => {
+          if (!teeMap[p.tee]) teeMap[p.tee] = [];
+          teeMap[p.tee].push(p);
+        });
+        const groupRows = Object.entries(teeMap)
+          .map(([tee, ps]) => ({ tee, missing: ps.filter(p => !isCheckedIn(p)), total: ps.length }))
+          .filter(g => g.missing.length > 0)
+          .sort((a,b) => compareTee(a.tee, b.tee))
+          .map(g => [g.tee, `${g.missing.length}/${g.total}`, g.missing.map(p => p.name).join(', ')]);
+
+        doc.autoTable({
+          startY: 64,
+          head: [['Tee','Faltan','Jugadores']],
+          body: groupRows,
+          theme: 'grid',
+          headStyles: { fillColor: [200, 50, 50], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+          bodyStyles: { fontSize: 9 },
+          columnStyles: {
+            0: { cellWidth: 50, halign: 'center', fontStyle: 'bold' },
+            1: { cellWidth: 50, halign: 'center' },
+            2: { cellWidth: 'auto' },
+          },
+          margin: { left: 40, right: 40 },
+        });
+      }
+
+      doc.save(`cpn-checkin-${now.toISOString().slice(0,10)}.pdf`);
     }
 
     function confirmReset() {
