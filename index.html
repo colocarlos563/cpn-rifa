@@ -1,531 +1,944 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CPN Golf 2026 — La Rifa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Torneo CPN 2026 — Check-in</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    html, body { height: 100%; overscroll-behavior-y: contain; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: #2d5a27;
-      background-image: radial-gradient(circle, #3a7a32 18%, transparent 18%),
-                        radial-gradient(circle, #3a7a32 18%, transparent 18%);
-      background-size: 60px 60px;
-      background-position: 0 0, 30px 30px;
       color: white;
       min-height: 100vh;
-      padding: 20px;
+      font-size: 16px;
+      -webkit-text-size-adjust: 100%;
     }
 
-    .logo-header {
-      text-align: center;
-      margin-bottom: 24px;
-      padding: 24px 20px 20px;
-      background: rgba(0,0,0,0.2);
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.1);
+    .app { max-width: 900px; margin: 0 auto; padding: 0 14px 80px; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: linear-gradient(180deg, #2d5a27 70%, rgba(45,90,39,0.95));
+      padding: 14px 0 10px;
+      backdrop-filter: blur(6px);
     }
 
-    .logo-school {
-      font-size: 0.85rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.85);
-      margin-bottom: 10px;
-    }
-
-    .logo-cpn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 4px;
-    }
-
-    .logo-cpn-text {
-      font-size: 5rem;
-      font-weight: 900;
-      color: white;
-      line-height: 1;
-      letter-spacing: -4px;
-      font-family: Georgia, serif;
-    }
-
-    .logo-ball {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-left: -8px;
-    }
-
-    .logo-ball-circle {
-      width: 52px;
-      height: 52px;
-      border: 3px solid white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.65rem;
-      color: white;
-      font-weight: 700;
-      position: relative;
-      background: rgba(255,255,255,0.08);
-    }
-
-    .logo-year {
-      font-size: 0.8rem;
-      color: white;
-      font-weight: 700;
-      margin-bottom: 2px;
-      letter-spacing: 1px;
-    }
-
-    .logo-golf {
-      font-size: 2rem;
-      color: white;
-      font-style: italic;
-      font-family: Georgia, 'Times New Roman', serif;
-      font-weight: 400;
-      letter-spacing: 2px;
-    }
-
-    h1 {
-      text-align: center;
-      font-size: 1.6rem;
-      font-weight: 800;
-      color: white;
-      margin-bottom: 2px;
-      letter-spacing: 1px;
-    }
-
-    .subtitle {
-      text-align: center;
-      color: rgba(255,255,255,0.7);
-      margin-bottom: 20px;
-      font-size: 0.9rem;
-      font-style: italic;
-    }
-
-    .container {
-      max-width: 700px;
-      margin: 0 auto;
-    }
-
-    .card {
-      background: rgba(0,0,0,0.25);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 16px;
-      backdrop-filter: blur(4px);
-    }
-
-    .input-row {
-      display: flex;
-      gap: 10px;
-    }
-
-    input[type="text"] {
-      flex: 1;
-      padding: 12px 16px;
-      border-radius: 10px;
-      border: 2px solid rgba(255,255,255,0.2);
-      background: rgba(255,255,255,0.1);
-      color: white;
-      font-size: 1rem;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    input[type="text"]::placeholder { color: rgba(255,255,255,0.4); }
-    input[type="text"]:focus { border-color: #f0c040; }
-
-    button {
-      padding: 12px 20px;
-      border-radius: 10px;
-      border: none;
-      font-size: 0.95rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .btn-add { background: #f0c040; color: #0a3d1f; }
-    .btn-add:hover { background: #ffd700; transform: scale(1.03); }
-
-    .btn-draw {
-      width: 100%;
-      padding: 18px;
-      font-size: 1.2rem;
-      background: linear-gradient(135deg, #c8a000, #f0c040);
-      color: #1a3d10;
-      border-radius: 12px;
-      margin-top: 8px;
-      font-weight: 900;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-    .btn-draw:hover { background: linear-gradient(135deg, #f0c040, #ffd700); transform: scale(1.01); }
-    .btn-draw:disabled { background: #555; cursor: not-allowed; transform: none; }
-
-    .btn-export { background: #2196F3; color: white; font-size: 0.85rem; padding: 8px 14px; }
-    .btn-export:hover { background: #42a5f5; }
-
-    .btn-reset { background: rgba(255,255,255,0.1); color: #ff6b6b; font-size: 0.85rem; padding: 8px 14px; border: 1px solid #ff6b6b; }
-    .btn-reset:hover { background: rgba(255,107,107,0.2); }
-
-    .stats {
+    .brandline {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 12px;
     }
 
-    .count {
-      font-size: 1.1rem;
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand .cpn {
+      font-family: Georgia, serif; font-weight: 900; font-size: 1.8rem;
+      letter-spacing: -2px; line-height: 1;
+    }
+    .brand .ball {
+      width: 28px; height: 28px; border: 2px solid white; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; background: rgba(255,255,255,0.06);
+    }
+    .brand .title { font-size: 0.95rem; font-weight: 700; letter-spacing: 0.5px; }
+    .brand .subt {
+      font-size: 0.72rem; color: rgba(255,255,255,0.6);
+      letter-spacing: 1px; text-transform: uppercase;
+    }
+
+    .header-btn {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: white;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.85rem;
       font-weight: 700;
-      color: #f0c040;
-    }
-
-    .actions { display: flex; gap: 8px; }
-
-    .names-list {
-      max-height: 180px;
-      overflow-y: auto;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .name-tag {
-      background: rgba(255,255,255,0.12);
-      border-radius: 20px;
-      padding: 5px 14px;
-      font-size: 0.88rem;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .name-tag .remove {
       cursor: pointer;
-      color: rgba(255,255,255,0.4);
-      font-size: 1rem;
-      line-height: 1;
+      font-family: inherit;
+      letter-spacing: 0.5px;
     }
-    .name-tag .remove:hover { color: #ff6b6b; }
+    .header-btn:active { background: rgba(255,255,255,0.18); }
 
-    .draw-count-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
+    .stats {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px; margin-bottom: 12px;
+    }
+    .stat {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px; padding: 12px; text-align: center;
+    }
+    .stat .num { font-size: 2rem; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+    .stat .lbl {
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.2px;
+      color: rgba(255,255,255,0.65); font-weight: 700;
+    }
+    .stat.ok .num { color: #7ddc7d; }
+    .stat.pending .num { color: #f0c040; }
+    .stat.raffle .num { color: #ff9ec7; }
+
+    .progressbar {
+      height: 6px; background: rgba(255,255,255,0.1);
+      border-radius: 3px; overflow: hidden; margin-bottom: 12px;
+    }
+    .progressbar .fill {
+      height: 100%;
+      background: linear-gradient(90deg, #7ddc7d, #f0c040);
+      transition: width 0.3s ease;
     }
 
-    .draw-count-row label { color: #a8d5a2; font-size: 0.9rem; }
-
-    select {
-      padding: 8px 12px;
-      border-radius: 8px;
+    .searchbar { display: flex; gap: 8px; margin-bottom: 10px; }
+    .searchbar input {
+      flex: 1; padding: 14px 16px; border-radius: 12px;
       border: 2px solid rgba(255,255,255,0.2);
       background: rgba(255,255,255,0.1);
-      color: white;
-      font-size: 0.95rem;
-      outline: none;
+      color: white; font-size: 1.05rem; outline: none;
+      font-family: inherit; -webkit-appearance: none;
+    }
+    .searchbar input::placeholder { color: rgba(255,255,255,0.45); }
+    .searchbar input:focus { border-color: #f0c040; }
+    .searchbar .clear {
+      padding: 0 16px; background: rgba(255,255,255,0.1);
+      border: 2px solid rgba(255,255,255,0.2);
+      color: white; border-radius: 12px;
+      font-size: 1.2rem; font-family: inherit; cursor: pointer;
     }
 
-    select:focus { border-color: #f0c040; }
-    option { background: #0a3d1f; }
+    .filter-chips {
+      display: flex; gap: 8px; overflow-x: auto;
+      padding-bottom: 4px; margin-bottom: 10px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .chip {
+      flex: 0 0 auto; padding: 8px 16px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      color: rgba(255,255,255,0.75);
+      font-weight: 700; font-size: 0.85rem; cursor: pointer;
+      font-family: inherit; white-space: nowrap;
+    }
+    .chip.active {
+      background: #f0c040; color: #0a3d1f; border-color: #f0c040;
+    }
 
-    /* Winner display */
-    .winner-display {
+    .tee-group { margin-bottom: 10px; }
+    .tee-header {
+      font-size: 0.78rem; font-weight: 800; letter-spacing: 1.5px;
+      text-transform: uppercase; color: #a8d5a2;
+      padding: 14px 4px 8px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .tee-header .count-badge {
+      background: rgba(255,255,255,0.1);
+      padding: 3px 10px; border-radius: 999px;
+      font-size: 0.7rem; color: rgba(255,255,255,0.7);
+    }
+
+    .player {
+      background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px; padding: 14px 16px; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 14px;
+      cursor: pointer; transition: transform 0.1s, background 0.15s;
+      min-height: 64px;
+    }
+    .player:active { transform: scale(0.98); }
+    .player.checked-in {
+      background: rgba(125,220,125,0.12);
+      border-color: rgba(125,220,125,0.35);
+    }
+    .player.alternate {
+      background: rgba(109,200,255,0.12);
+      border-color: rgba(109,200,255,0.4);
+    }
+    .player .pnum {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; font-weight: 700;
+      color: rgba(255,255,255,0.6); flex-shrink: 0;
+    }
+    .player.checked-in .pnum { background: #7ddc7d; color: #0a3d1f; }
+    .player.alternate .pnum { background: #6dc8ff; color: #0a3d1f; }
+    .player .info { flex: 1; min-width: 0; }
+    .player .name {
+      font-size: 1.05rem; font-weight: 700;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .player .original-name {
+      font-size: 0.75rem; color: rgba(255,255,255,0.5);
+      text-decoration: line-through; margin-top: 2px;
+    }
+    .player .meta {
+      font-size: 0.8rem; color: rgba(255,255,255,0.6);
+      margin-top: 2px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .player .meta .tee-tag {
+      display: inline-block; background: rgba(255,255,255,0.1);
+      border-radius: 4px; padding: 1px 6px;
+      font-family: monospace; font-size: 0.75rem;
+      margin-right: 6px; color: rgba(255,255,255,0.85);
+    }
+    .player .meta .raffle-tag {
+      display: inline-block; background: rgba(255,158,199,0.18);
+      border: 1px solid rgba(255,158,199,0.4);
+      color: #ff9ec7;
+      border-radius: 4px; padding: 1px 6px;
+      font-size: 0.7rem; margin-left: 6px;
+      font-weight: 700;
+    }
+    .player .status { flex-shrink: 0; font-size: 1.5rem; }
+    .player .time {
+      font-size: 0.7rem; color: rgba(255,255,255,0.5);
+      text-align: right; margin-top: 2px;
+    }
+
+    .empty {
+      text-align: center; padding: 40px 20px;
+      color: rgba(255,255,255,0.4); font-size: 0.95rem;
+    }
+
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: none; align-items: center; justify-content: center;
+      padding: 20px; z-index: 100;
+      backdrop-filter: blur(4px);
+    }
+    .modal-backdrop.active { display: flex; }
+
+    .modal {
+      background: #1a3d10;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 18px; padding: 24px;
+      width: 100%; max-width: 480px;
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal h2 { font-size: 1.1rem; margin-bottom: 4px; letter-spacing: 0.5px; }
+    .modal .modal-sub {
+      font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-bottom: 18px;
+    }
+
+    .field { margin-bottom: 16px; }
+    .field label {
+      display: block; font-size: 0.75rem; font-weight: 700;
+      color: #a8d5a2; text-transform: uppercase;
+      letter-spacing: 1.2px; margin-bottom: 6px;
+    }
+    .field input {
+      width: 100%; padding: 14px 16px; border-radius: 12px;
+      border: 2px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.08);
+      color: white; font-size: 1.05rem; outline: none;
+      font-family: inherit; -webkit-appearance: none;
+    }
+    .field input:focus { border-color: #f0c040; }
+    .field .hint {
+      font-size: 0.75rem; color: rgba(255,255,255,0.45);
+      margin-top: 6px; line-height: 1.4;
+    }
+
+    .info-row {
+      display: flex; justify-content: space-between;
+      padding: 10px 0; font-size: 0.9rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .info-row .lbl { color: rgba(255,255,255,0.55); }
+    .info-row .val { font-weight: 600; }
+
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px;
+      background: rgba(255,158,199,0.08);
+      border: 1px solid rgba(255,158,199,0.3);
+      border-radius: 12px; margin-bottom: 16px;
+      cursor: pointer; user-select: none;
+    }
+    .toggle-row .info-text { font-weight: 700; color: #ff9ec7; }
+    .toggle-row .info-sub {
+      font-size: 0.75rem; color: rgba(255,255,255,0.5);
+      font-weight: 400; margin-top: 2px;
+    }
+    .toggle-row input[type="checkbox"] {
+      width: 28px; height: 28px;
+      accent-color: #ff9ec7; cursor: pointer;
+    }
+
+    .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
+
+    .btn {
+      flex: 1; padding: 16px; border-radius: 12px;
+      border: none; font-size: 1rem; font-weight: 800;
+      cursor: pointer; font-family: inherit;
+      letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: #f0c040; color: #0a3d1f; }
+    .btn-primary:active { background: #ffd700; }
+    .btn-success { background: #7ddc7d; color: #0a3d1f; }
+    .btn-secondary {
+      background: rgba(255,255,255,0.1); color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .btn-danger {
+      background: rgba(255,107,107,0.15); color: #ff6b6b;
+      border: 1px solid rgba(255,107,107,0.4);
+    }
+
+    /* Tee splash */
+    .splash-backdrop {
+      position: fixed; inset: 0;
+      background: linear-gradient(135deg, #0a3d1f, #2d5a27);
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 30px; z-index: 200;
       text-align: center;
-      padding: 20px 10px;
-      display: none;
     }
-
-    .winner-display.active { display: block; }
-
-    .winner-label {
-      font-size: 0.85rem;
-      color: #a8d5a2;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-bottom: 8px;
+    .splash-backdrop.active { display: flex; }
+    .splash-check {
+      font-size: 4rem; color: #7ddc7d; margin-bottom: 12px;
+      animation: pop 0.5s ease;
     }
-
-    .winner-name {
-      font-size: 2.2rem;
-      font-weight: 900;
-      color: #f0c040;
-      animation: pop 0.4s ease;
+    .splash-label {
+      font-size: 0.9rem; text-transform: uppercase;
+      letter-spacing: 3px; color: #a8d5a2;
+      margin-bottom: 14px; font-weight: 800;
     }
+    .splash-tee {
+      font-size: 7rem; font-weight: 900;
+      color: #f0c040; line-height: 1;
+      letter-spacing: -4px; margin-bottom: 4px;
+      font-family: Georgia, serif;
+      text-shadow: 0 0 40px rgba(240,192,64,0.4);
+      animation: pop 0.5s ease 0.1s backwards;
+    }
+    .splash-hole-text {
+      font-size: 1.05rem; color: rgba(255,255,255,0.7);
+      margin-bottom: 28px; letter-spacing: 1px;
+    }
+    .splash-name {
+      font-size: 1.6rem; font-weight: 700;
+      color: white; margin-bottom: 6px;
+      animation: pop 0.5s ease 0.2s backwards;
+    }
+    .splash-meta {
+      font-size: 0.95rem; color: rgba(255,255,255,0.6);
+      margin-bottom: 36px;
+    }
+    .splash-raffle {
+      display: inline-block;
+      background: rgba(255,158,199,0.18);
+      border: 1px solid rgba(255,158,199,0.5);
+      color: #ff9ec7;
+      padding: 8px 16px; border-radius: 999px;
+      font-size: 0.85rem; font-weight: 700;
+      margin-bottom: 36px; letter-spacing: 1px;
+    }
+    .splash-next {
+      padding: 18px 40px;
+      background: #f0c040; color: #0a3d1f;
+      border: none; border-radius: 14px;
+      font-size: 1.1rem; font-weight: 800;
+      cursor: pointer; font-family: inherit;
+      letter-spacing: 1px; text-transform: uppercase;
+      min-width: 240px;
+    }
+    .splash-next:active { background: #ffd700; transform: scale(0.97); }
 
     @keyframes pop {
       0% { transform: scale(0.5); opacity: 0; }
-      70% { transform: scale(1.1); }
+      70% { transform: scale(1.08); }
       100% { transform: scale(1); opacity: 1; }
     }
 
-    .spinning {
-      animation: spin-names 0.08s infinite;
+    /* Report */
+    .report-section { margin-bottom: 22px; }
+    .report-section h3 {
+      font-size: 0.85rem; text-transform: uppercase;
+      letter-spacing: 1.5px; color: #a8d5a2;
+      margin-bottom: 10px; font-weight: 800;
     }
-
-    @keyframes spin-names {
-      0% { opacity: 0.3; }
-      50% { opacity: 1; }
-      100% { opacity: 0.3; }
-    }
-
-    /* Winners log */
-    .winners-log { margin-top: 4px; }
-
-    .winner-entry {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 14px;
-      background: rgba(240,192,64,0.1);
-      border: 1px solid rgba(240,192,64,0.3);
-      border-radius: 10px;
-      margin-bottom: 8px;
-    }
-
-    .winner-entry .place {
-      font-size: 0.8rem;
-      color: #f0c040;
-      font-weight: 700;
-      width: 28px;
-    }
-
-    .winner-entry .wname {
-      flex: 1;
-      font-weight: 600;
-      font-size: 1rem;
-    }
-
-    .winner-entry .wtime {
-      font-size: 0.75rem;
-      color: rgba(255,255,255,0.4);
-    }
-
-    .empty-msg {
-      color: rgba(255,255,255,0.3);
+    .report-row {
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px; margin-bottom: 6px;
       font-size: 0.9rem;
-      text-align: center;
-      padding: 20px;
+      display: flex; justify-content: space-between; align-items: center; gap: 8px;
     }
+    .report-row .tee-mini {
+      font-family: monospace;
+      background: rgba(255,255,255,0.1);
+      padding: 2px 8px; border-radius: 4px;
+      font-size: 0.78rem; color: rgba(255,255,255,0.75);
+      flex-shrink: 0;
+    }
+    .report-row .name { flex: 1; }
+    .report-row .sponsor { font-size: 0.78rem; color: rgba(255,255,255,0.5); }
 
-    .section-title {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: #a8d5a2;
-      margin-bottom: 12px;
-      font-weight: 700;
+    @media (min-width: 700px) {
+      .stats .stat .num { font-size: 2.4rem; }
+      .player .name { font-size: 1.15rem; }
+      .splash-tee { font-size: 9rem; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="logo-header">
-      <div class="logo-school">Colegio Puertorriqueño de Niñas</div>
-      <div class="logo-cpn">
-        <div class="logo-cpn-text">cpn</div>
-        <div class="logo-ball">
-          <div class="logo-year">2026</div>
-          <div class="logo-ball-circle">⛳</div>
+  <div class="app">
+    <div class="topbar">
+      <div class="brandline">
+        <div class="brand">
+          <span class="cpn">cpn</span>
+          <span class="ball">⛳</span>
+          <div>
+            <div class="title">Torneo 2026</div>
+            <div class="subt">Check-in · Bahia Beach</div>
+          </div>
+        </div>
+        <button class="header-btn" onclick="openReport()">Reporte</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat ok">
+          <div class="num" id="stat-checkedin">0</div>
+          <div class="lbl">Registrados</div>
+        </div>
+        <div class="stat pending">
+          <div class="num" id="stat-pending">0</div>
+          <div class="lbl">Pendientes</div>
+        </div>
+        <div class="stat raffle">
+          <div class="num" id="stat-raffle">0</div>
+          <div class="lbl">En Sorteo</div>
         </div>
       </div>
-      <div class="logo-golf">Golf</div>
-    </div>
-    <h1>La Rifa</h1>
-    <p class="subtitle">Sorteo de Premios</p>
 
-    <!-- Registration -->
-    <div class="card">
-      <div class="section-title">Registro de Participantes</div>
-      <div class="input-row">
-        <input type="text" id="nameInput" placeholder="Nombre del participante..." autocomplete="off" />
-        <button class="btn-add" onclick="addName()">Add</button>
+      <div class="progressbar"><div class="fill" id="progress"></div></div>
+
+      <div class="searchbar">
+        <input type="search" id="search" placeholder="Buscar por nombre o sponsor…" autocomplete="off" autocapitalize="words" />
+        <button class="clear" onclick="clearSearch()" aria-label="Limpiar">×</button>
       </div>
-      <div class="stats" style="margin-top:16px;">
-        <span class="count" id="countDisplay">0 participants</span>
-        <div class="actions">
-          <button class="btn-export" onclick="exportCSV()">Exportar CSV</button>
-          <button class="btn-reset" onclick="confirmReset()">Reiniciar</button>
+
+      <div class="filter-chips" id="filter-chips">
+        <button class="chip active" data-filter="pending">⏳ Pendientes</button>
+        <button class="chip" data-filter="checkedin">✓ Registrados</button>
+        <button class="chip" data-filter="all">Todos</button>
+      </div>
+    </div>
+
+    <div id="list"></div>
+  </div>
+
+  <!-- Check-in modal -->
+  <div class="modal-backdrop" id="checkinModal">
+    <div class="modal">
+      <h2 id="modal-title">Check-in</h2>
+      <div class="modal-sub" id="modal-sub"></div>
+
+      <div class="info-row">
+        <span class="lbl">Tee / Hoyo</span>
+        <span class="val" id="modal-tee"></span>
+      </div>
+      <div class="info-row" style="border:none;">
+        <span class="lbl">Sponsor</span>
+        <span class="val" id="modal-sponsor"></span>
+      </div>
+
+      <div class="field">
+        <label for="checkin-name">Nombre</label>
+        <input type="text" id="checkin-name" autocomplete="off" autocapitalize="words" />
+        <div class="hint">Si juega un alternate, edita el nombre aquí.</div>
+      </div>
+
+      <label class="toggle-row" id="raffle-toggle-row">
+        <div>
+          <div class="info-text">🎟️ Entrar al sorteo</div>
+          <div class="info-sub">Marca para participar en La Rifa</div>
         </div>
-      </div>
-      <div class="names-list" id="namesList"></div>
-    </div>
+        <input type="checkbox" id="raffle-toggle" />
+      </label>
 
-    <!-- Draw -->
-    <div class="card">
-      <div class="section-title">Sorteo</div>
-      <div class="draw-count-row">
-        <label>Número de ganadores:</label>
-        <select id="drawCount">
-          <option value="1">1 ganador</option>
-          <option value="2">2 ganadores</option>
-          <option value="3">3 ganadores</option>
-          <option value="4" selected>4 ganadores</option>
-          <option value="5">5 ganadores</option>
-        </select>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeCheckin()">Cancelar</button>
+        <button class="btn btn-primary" id="confirm-btn" onclick="confirmCheckin()">✓ Check-in</button>
       </div>
-      <div class="winner-display" id="winnerDisplay">
-        <div class="winner-label" id="winnerLabel">Winner</div>
-        <div class="winner-name" id="winnerName"></div>
-      </div>
-      <button class="btn-draw" id="drawBtn" onclick="drawWinner()">🎯 Draw Winner</button>
-    </div>
 
-    <!-- Winners Log -->
-    <div class="card">
-      <div class="section-title">Ganadores</div>
-      <div class="winners-log" id="winnersLog">
-        <div class="empty-msg">Aún no hay ganadores</div>
+      <div class="modal-actions" id="undo-actions" style="display:none;">
+        <button class="btn btn-danger" onclick="undoCheckin()">Deshacer Check-in</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tee splash -->
+  <div class="splash-backdrop" id="teeSplash">
+    <div class="splash-check">✓</div>
+    <div class="splash-label">Empieza en</div>
+    <div class="splash-tee" id="splash-tee"></div>
+    <div class="splash-hole-text" id="splash-hole-text"></div>
+    <div class="splash-name" id="splash-name"></div>
+    <div class="splash-meta" id="splash-meta"></div>
+    <div id="splash-raffle-wrap" style="display:none;">
+      <div class="splash-raffle">🎟️ Inscrito al sorteo</div>
+    </div>
+    <button class="splash-next" onclick="closeSplash()">Siguiente Jugador →</button>
+  </div>
+
+  <!-- Report modal -->
+  <div class="modal-backdrop" id="reportModal">
+    <div class="modal" style="max-width: 640px;">
+      <h2>Reporte del Evento</h2>
+      <div class="modal-sub" id="report-sub"></div>
+
+      <div class="report-section">
+        <h3 id="missed-title">No-shows</h3>
+        <div id="missed-list"></div>
+      </div>
+
+      <div class="report-section">
+        <h3 id="open-title">Foursomes con espacios abiertos</h3>
+        <div id="open-list"></div>
+      </div>
+
+      <div class="report-section">
+        <h3 id="raffle-title">Inscritos al sorteo</h3>
+        <div id="raffle-list"></div>
+      </div>
+
+      <div class="report-section">
+        <h3 id="alt-title">Alternates</h3>
+        <div id="alt-list"></div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeReport()">Cerrar</button>
+        <button class="btn btn-primary" onclick="exportCSV()">Exportar CSV</button>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-danger" onclick="confirmReset()">Reiniciar Check-ins</button>
       </div>
     </div>
   </div>
 
   <script>
-    let names = JSON.parse(localStorage.getItem('golf_names') || '[]');
-    let winners = JSON.parse(localStorage.getItem('golf_winners') || '[]');
+    // === SEED ROSTER (from xlsx — list still being revised, names will likely change) ===
+    const SEED_PLAYERS = [{"num":1,"tee":"1A","name":"Roberto Vazquez","sponsor":"Individual"},{"num":2,"tee":"1A","name":"Dacio Pasarell","sponsor":"Individual"},{"num":3,"tee":"1A","name":"Benjamin Aruca","sponsor":"Buns"},{"num":4,"tee":"1A","name":"Fidel Alonso","sponsor":"Buns"},{"num":5,"tee":"1B","name":"Osvaldo Rodriguez","sponsor":"Americas Leading Finance"},{"num":6,"tee":"1B","name":"Andres Rodriguez","sponsor":"Americas Leading Finance"},{"num":7,"tee":"1B","name":"Adalberto Molina","sponsor":"Americas Leading Finance"},{"num":8,"tee":"1B","name":"Marcos Morales","sponsor":"Americas Leading Finance"},{"num":9,"tee":"2A","name":"Daniel Font","sponsor":"Benjamin Moore"},{"num":10,"tee":"2A","name":"Jorge Hernandez","sponsor":"Benjamin Moore"},{"num":11,"tee":"2A","name":"Jose Santiago","sponsor":"Individual"},{"num":12,"tee":"2A","name":"Alejandro Quilichini","sponsor":"Individual"},{"num":13,"tee":"2B","name":"Ian Figueroa","sponsor":"Individual"},{"num":14,"tee":"2B","name":"Jose Castellanos","sponsor":"Individual"},{"num":15,"tee":"2B","name":"Martin Aruca","sponsor":"Los Chavales"},{"num":16,"tee":"2B","name":"Jose Hernandez","sponsor":"Los Chavales"},{"num":17,"tee":"3A","name":"Rafael Lama","sponsor":"El Nuevo Dia"},{"num":18,"tee":"3A","name":"Dennis Rivera","sponsor":"El Nuevo Dia"},{"num":19,"tee":"3A","name":"Victor Curet","sponsor":"Farmacias Caridad"},{"num":20,"tee":"3A","name":"George Neste","sponsor":"Farmacias Caridad"},{"num":21,"tee":"3B","name":"Juan Carlos Muñoz","sponsor":"F&R"},{"num":22,"tee":"3B","name":"Jose Fullana","sponsor":"F&R"},{"num":23,"tee":"3B","name":"Eduardo Torres","sponsor":"Paperhouse"},{"num":24,"tee":"3B","name":"Sammy Rivera","sponsor":"Paperhouse"},{"num":25,"tee":"4A","name":"Jorge Pierluisi","sponsor":"bMedia"},{"num":26,"tee":"4A","name":"Miguel Ferraiuoli","sponsor":"bMedia"},{"num":27,"tee":"4A","name":"Alfredo Colon","sponsor":"bMedia"},{"num":28,"tee":"4A","name":"Francisco de Zengotita","sponsor":"bMedia"},{"num":29,"tee":"5A","name":"Luis Davila","sponsor":"Individual"},{"num":30,"tee":"5A","name":"Cesar Vivaldi","sponsor":"Individual"},{"num":31,"tee":"5A","name":"Raul Delgado","sponsor":"MD CPA"},{"num":32,"tee":"5A","name":"Francisco Medina","sponsor":"MD CPA"},{"num":33,"tee":"5B","name":"Gustavo Bermudo","sponsor":"Wap"},{"num":34,"tee":"5B","name":"Iky Kodesh","sponsor":"Wap"},{"num":35,"tee":"5B","name":"Cesar Gomez","sponsor":"SMR"},{"num":36,"tee":"5B","name":"Benchi Aldarondo","sponsor":"SMR"},{"num":37,"tee":"6A","name":"Paulson 1","sponsor":"Paulson"},{"num":38,"tee":"6A","name":"Paulson 2","sponsor":"Paulson"},{"num":39,"tee":"6A","name":"Paulson 3","sponsor":"Paulson"},{"num":40,"tee":"6A","name":"Paulson 4","sponsor":"Paulson"},{"num":41,"tee":"6B","name":"Julian Guzman Sr","sponsor":"V Suarez"},{"num":42,"tee":"6B","name":"Julian Guzman Jr","sponsor":"V Suarez"},{"num":43,"tee":"6B","name":"Eric Freytes","sponsor":"Puttanesca"},{"num":44,"tee":"6B","name":"Mundi Morin","sponsor":"Puttanesca"},{"num":45,"tee":"7A","name":"Alexis Colon","sponsor":"First Bank"},{"num":46,"tee":"7A","name":"Derek Feliciano","sponsor":"First Bank"},{"num":47,"tee":"7A","name":"Miguel Lopez","sponsor":"First Bank"},{"num":48,"tee":"7A","name":"Edwin Pizarro","sponsor":"First Bank"},{"num":49,"tee":"7B","name":"Luis Diaz","sponsor":"First Bank"},{"num":50,"tee":"7B","name":"Francisco Delgado","sponsor":"First Bank"},{"num":51,"tee":"7B","name":"Christian Alcala","sponsor":"Alcala Law Office"},{"num":52,"tee":"7B","name":"Christopher Alcala","sponsor":"Alcala Law Office"},{"num":53,"tee":"8A","name":"Jorge Maldonado","sponsor":"Antilles Insurance"},{"num":54,"tee":"8A","name":"Mario Carbia","sponsor":"Antilles Insurance"},{"num":55,"tee":"8A","name":"Jose Chaves","sponsor":"Antilles Insurance"},{"num":56,"tee":"8A","name":"Carlos Jimenez","sponsor":"Antilles Insurance"},{"num":57,"tee":"8B","name":"Fabio Posada","sponsor":"Retail Group"},{"num":58,"tee":"8B","name":"Milagros Cabrera","sponsor":"Retail Group"},{"num":59,"tee":"8B","name":"Valeria Cabrera","sponsor":"Retail Group"},{"num":60,"tee":"8B","name":"Julia Cabrera","sponsor":"Retail Group"},{"num":61,"tee":"9A","name":"Heberto Diaz","sponsor":"Ferries del Caribe"},{"num":62,"tee":"9A","name":"Fernando Valledor","sponsor":"Ferries del Caribe"},{"num":63,"tee":"9A","name":"Rafael Vega","sponsor":"International Printing"},{"num":64,"tee":"9A","name":"Adrian Vega","sponsor":"International Printing"},{"num":65,"tee":"10A","name":"Jose Carlos Villares","sponsor":"Flagship"},{"num":66,"tee":"10A","name":"Daniel Diaz","sponsor":"Flagship"},{"num":67,"tee":"10A","name":"Gustavo Villares","sponsor":"Flagship"},{"num":68,"tee":"10A","name":"Jacob Wegrzyn","sponsor":"Flagship"},{"num":69,"tee":"10B","name":"Annuar Azizi","sponsor":"Titin Foundation"},{"num":70,"tee":"10B","name":"Hector Rodriguez","sponsor":"Titin Foundation"},{"num":71,"tee":"10B","name":"Narciso Cruz","sponsor":"Titin Foundation"},{"num":72,"tee":"10B","name":"Ambrose Ramsahai","sponsor":"Titin Foundation"},{"num":73,"tee":"11A","name":"Enrique Vila","sponsor":"Iedifiko"},{"num":74,"tee":"11A","name":"Alfredo Firpi","sponsor":"Iedifiko"},{"num":75,"tee":"11A","name":"Alberto Firpi","sponsor":"Iedifiko"},{"num":76,"tee":"11A","name":"Alfredo J. Firpi","sponsor":"Iedifiko"},{"num":77,"tee":"11B","name":"Javier Jimenez","sponsor":"Tekpro"},{"num":78,"tee":"11B","name":"Ramon Vazquez","sponsor":"Tekpro"},{"num":79,"tee":"11B","name":"Anthony Cardona","sponsor":"Individual"},{"num":80,"tee":"11B","name":"Javier Tirado","sponsor":"Individual"},{"num":81,"tee":"12A","name":"Luis Díaz","sponsor":"Individual"},{"num":82,"tee":"12A","name":"Luis Llach","sponsor":"Individual"},{"num":83,"tee":"12A","name":"Eduardo Nuñez","sponsor":"Individual"},{"num":84,"tee":"12A","name":"Javier Cruz","sponsor":"Individual"},{"num":85,"tee":"12B","name":"Laura Medina","sponsor":"Banco Popular"},{"num":86,"tee":"12B","name":"Claudia Segarra","sponsor":"Banco Popular"},{"num":87,"tee":"12B","name":"Miguel Rodriguez","sponsor":"Banco Popular"},{"num":88,"tee":"12B","name":"Javier Vivas","sponsor":"Banco Popular"},{"num":89,"tee":"13A","name":"Fernando de Leon","sponsor":"Individual"},{"num":90,"tee":"13A","name":"Ryan Arrieta","sponsor":"Individual"},{"num":91,"tee":"13A","name":"Gonzalo Solis","sponsor":"Individual"},{"num":92,"tee":"13A","name":"Rafael Rosario","sponsor":"Individual"},{"num":93,"tee":"13B","name":"Alina Fernandez","sponsor":"Individual"},{"num":94,"tee":"13B","name":"Karen Calvesbert","sponsor":"Individual"},{"num":95,"tee":"13B","name":"Viviana Soler","sponsor":"Individual"},{"num":96,"tee":"13B","name":"Neysa Sanchez","sponsor":"Individual"},{"num":97,"tee":"14A","name":"Ana Recourt","sponsor":"DWH"},{"num":98,"tee":"14A","name":"Marta Hernandez","sponsor":"DWH"},{"num":99,"tee":"14A","name":"Francisco Martin Sr","sponsor":"Individual"},{"num":100,"tee":"14A","name":"Francisco Martin Jr","sponsor":"Individual"},{"num":101,"tee":"14B","name":"Ronald Berrios","sponsor":"Lanco"},{"num":102,"tee":"14B","name":"Erick Gonzalez","sponsor":"Lanco"},{"num":103,"tee":"14B","name":"Hector Alvarado","sponsor":"Lanco"},{"num":104,"tee":"14B","name":"Arnaldo Alvarado","sponsor":"Lanco"},{"num":105,"tee":"15A","name":"Jorge Cañellas","sponsor":"Cañellas"},{"num":106,"tee":"15A","name":"Gabriela Cañellas","sponsor":"Cañellas"},{"num":107,"tee":"15A","name":"Luis Muñiz","sponsor":"Individual"},{"num":108,"tee":"15A","name":"Naomi Muñiz","sponsor":"Individual"},{"num":109,"tee":"16A","name":"Ferdinand Rodriguez","sponsor":"Individual"},{"num":110,"tee":"16A","name":"Andres Muñiz","sponsor":"Individual"},{"num":111,"tee":"16A","name":"Jean Paul Miranda","sponsor":"JP Miranda"},{"num":112,"tee":"16A","name":"Gabriel Hernandez","sponsor":"JP Miranda"},{"num":113,"tee":"16B","name":"Joel Rodriguez","sponsor":"Individual"},{"num":114,"tee":"16B","name":"Ricardo Santana","sponsor":"Individual"},{"num":115,"tee":"16B","name":"Diego Muñiz","sponsor":"Bayamon Medical"},{"num":116,"tee":"16B","name":"Cesar Hernandez","sponsor":"Bayamon Medical"},{"num":117,"tee":"17A","name":"Carlos Colon","sponsor":"Colon Izquierdo Law"},{"num":118,"tee":"17A","name":"Christian Colon","sponsor":"Colon Izquierdo Law"},{"num":119,"tee":"17A","name":"Juan Pablo Rosado","sponsor":"Caro Benazar"},{"num":120,"tee":"17A","name":"Freddy Pagani","sponsor":"Caro Benazar"},{"num":121,"tee":"18A","name":"Carlos Gonzalez","sponsor":"Americas Leading Finance"},{"num":122,"tee":"18A","name":"Ricardo Velez","sponsor":"Americas Leading Finance"},{"num":123,"tee":"18A","name":"Jose Torregrosa","sponsor":"Americas Leading Finance"},{"num":124,"tee":"18A","name":"Manuel Martin","sponsor":"Americas Leading Finance"},{"num":125,"tee":"18B","name":"Jose Calderon","sponsor":"Hub"},{"num":126,"tee":"18B","name":"Roberto Hernandez","sponsor":"Hub"},{"num":127,"tee":"18B","name":"Emilio Fagundo","sponsor":"Hub"},{"num":128,"tee":"18B","name":"Lucas Bennet","sponsor":"Hub"}];
+
+    const CHECKIN_KEY = 'cpn_checkins_v2';
+    let checkins = JSON.parse(localStorage.getItem(CHECKIN_KEY) || '{}');
+
+    let activeFilter = 'pending';
+    let searchQ = '';
+    let modalPlayer = null;
 
     function save() {
-      localStorage.setItem('golf_names', JSON.stringify(names));
-      localStorage.setItem('golf_winners', JSON.stringify(winners));
+      localStorage.setItem(CHECKIN_KEY, JSON.stringify(checkins));
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[c]));
+    }
+
+    function norm(s) {
+      return (s || '').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
+    }
+
+    function teeSortKey(tee) {
+      const m = (tee || '').match(/^(\d+)([A-Z]?)/i);
+      if (!m) return [9999, ''];
+      return [parseInt(m[1]), (m[2] || '').toUpperCase()];
+    }
+    function compareTee(a, b) {
+      const [an, al] = teeSortKey(a);
+      const [bn, bl] = teeSortKey(b);
+      if (an !== bn) return an - bn;
+      return al.localeCompare(bl);
+    }
+
+    function holeNumberFromTee(tee) {
+      const m = (tee || '').match(/^(\d+)/);
+      return m ? m[1] : '';
+    }
+
+    function getDisplayName(p) {
+      const c = checkins[p.num];
+      return (c && c.alternateName) ? c.alternateName : p.name;
+    }
+    function isCheckedIn(p) { return !!checkins[p.num]; }
+    function isAlternate(p) { return !!(checkins[p.num] && checkins[p.num].alternateName); }
+    function isInRaffle(p) { return !!(checkins[p.num] && checkins[p.num].raffle); }
+
+    function updateStats() {
+      const total = SEED_PLAYERS.length;
+      const checkedIn = Object.keys(checkins).length;
+      const pending = total - checkedIn;
+      const raffle = Object.values(checkins).filter(c => c.raffle).length;
+
+      document.getElementById('stat-checkedin').textContent = checkedIn;
+      document.getElementById('stat-pending').textContent = pending;
+      document.getElementById('stat-raffle').textContent = raffle;
+      document.getElementById('progress').style.width = (total ? (checkedIn/total)*100 : 0) + '%';
+    }
+
+    function filterPlayers() {
+      const q = norm(searchQ.trim());
+      return SEED_PLAYERS.filter(p => {
+        // When searching, ignore filter chips so people are findable regardless of state
+        if (!q) {
+          if (activeFilter === 'pending' && isCheckedIn(p)) return false;
+          if (activeFilter === 'checkedin' && !isCheckedIn(p)) return false;
+        }
+        if (q) {
+          const haystack = norm(p.name + ' ' + (p.sponsor||'') + ' ' + p.tee + ' ' + getDisplayName(p));
+          if (!haystack.includes(q)) return false;
+        }
+        return true;
+      });
+    }
+
+    function renderList() {
+      const players = filterPlayers();
+      const list = document.getElementById('list');
+
+      if (players.length === 0) {
+        const msg = searchQ
+          ? 'No hay coincidencias.'
+          : activeFilter === 'pending' ? '🎉 Todos los jugadores están registrados'
+          : activeFilter === 'checkedin' ? 'Aún nadie ha hecho check-in'
+          : 'No hay jugadores';
+        list.innerHTML = `<div class="empty">${msg}</div>`;
+        return;
+      }
+
+      const groups = {};
+      players.forEach(p => {
+        if (!groups[p.tee]) groups[p.tee] = [];
+        groups[p.tee].push(p);
+      });
+      const teeKeys = Object.keys(groups).sort(compareTee);
+
+      const html = teeKeys.map(tee => {
+        const group = groups[tee];
+        const allInGroup = SEED_PLAYERS.filter(p => p.tee === tee);
+        const checkedInGroup = allInGroup.filter(isCheckedIn).length;
+        return `
+          <div class="tee-group">
+            <div class="tee-header">
+              <span>Tee ${escapeHtml(tee)}</span>
+              <span class="count-badge">${checkedInGroup}/${allInGroup.length}</span>
+            </div>
+            ${group.map(p => renderPlayerCard(p)).join('')}
+          </div>
+        `;
+      }).join('');
+
+      list.innerHTML = html;
+
+      list.querySelectorAll('[data-pnum]').forEach(el => {
+        el.addEventListener('click', () => openCheckin(parseInt(el.dataset.pnum)));
+      });
+    }
+
+    function renderPlayerCard(p) {
+      const c = checkins[p.num];
+      const ci = !!c;
+      const alt = ci && c.alternateName;
+      const cls = alt ? 'alternate' : (ci ? 'checked-in' : '');
+      const display = alt ? c.alternateName : p.name;
+      const orig = alt ? `<div class="original-name">era: ${escapeHtml(p.name)}</div>` : '';
+      const status = alt ? '🔄' : (ci ? '✅' : '⏳');
+      const time = ci ? `<div class="time">${escapeHtml(c.time || '')}</div>` : '';
+      const raffleTag = (ci && c.raffle) ? '<span class="raffle-tag">🎟️ Sorteo</span>' : '';
+
+      return `
+        <div class="player ${cls}" data-pnum="${p.num}">
+          <div class="pnum">${p.num}</div>
+          <div class="info">
+            <div class="name">${escapeHtml(display)}</div>
+            ${orig}
+            <div class="meta">
+              <span class="tee-tag">${escapeHtml(p.tee)}</span>${escapeHtml(p.sponsor || 'Individual')}
+              ${raffleTag}
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div class="status">${status}</div>
+            ${time}
+          </div>
+        </div>
+      `;
     }
 
     function render() {
-      // Count
-      document.getElementById('countDisplay').textContent =
-        names.length + ' participante' + (names.length !== 1 ? 's' : '');
-
-      // Names list
-      const list = document.getElementById('namesList');
-      if (names.length === 0) {
-        list.innerHTML = '<div class="empty-msg">Aún no hay participantes</div>';
-      } else {
-        list.innerHTML = names.map((n, i) =>
-          `<div class="name-tag">${n} <span class="remove" onclick="removeName(${i})">×</span></div>`
-        ).join('');
-      }
-
-      // Winners log
-      const log = document.getElementById('winnersLog');
-      if (winners.length === 0) {
-        log.innerHTML = '<div class="empty-msg">Aún no hay ganadores</div>';
-      } else {
-        log.innerHTML = winners.map((w, i) =>
-          `<div class="winner-entry">
-            <span class="place">#${i+1}</span>
-            <span class="wname">${w.name}</span>
-            <span class="wtime">${w.time}</span>
-          </div>`
-        ).join('');
-      }
-
-      // Draw button state
-      const available = names.filter(n => !winners.find(w => w.name === n));
-      const needed = parseInt(document.getElementById('drawCount').value);
-      document.getElementById('drawBtn').disabled = available.length === 0;
-      document.getElementById('drawBtn').textContent =
-        winners.length > 0 && winners.length < needed
-          ? `🎯 Sortear Ganador #${winners.length + 1}`
-          : winners.length >= needed
-          ? '✅ Todos los ganadores seleccionados — Reiniciar para comenzar de nuevo'
-          : '🎯 Sortear Ganador';
-      document.getElementById('drawBtn').disabled =
-        available.length === 0 || winners.length >= needed;
+      updateStats();
+      renderList();
     }
 
-    function addName() {
-      const input = document.getElementById('nameInput');
-      const name = input.value.trim();
-      if (!name) return;
-      names.push(name);
-      save();
-      render();
-      input.value = '';
-      input.focus();
-    }
-
-    document.getElementById('nameInput').addEventListener('keydown', e => {
-      if (e.key === 'Enter') addName();
+    document.getElementById('search').addEventListener('input', e => {
+      searchQ = e.target.value;
+      renderList();
     });
 
-    function removeName(i) {
-      if (confirm(`¿Eliminar "${names[i]}" de la lista?`)) {
-        names.splice(i, 1);
+    function clearSearch() {
+      document.getElementById('search').value = '';
+      searchQ = '';
+      renderList();
+      document.getElementById('search').focus();
+    }
+
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        activeFilter = chip.dataset.filter;
+        renderList();
+      });
+    });
+
+    function openCheckin(pnum) {
+      const p = SEED_PLAYERS.find(x => x.num === pnum);
+      if (!p) return;
+      modalPlayer = p;
+      const c = checkins[pnum];
+
+      document.getElementById('modal-title').textContent =
+        c ? 'Detalle del Check-in' : 'Check-in';
+      document.getElementById('modal-sub').textContent = `#${p.num} · ${p.name}`;
+      document.getElementById('modal-tee').textContent = p.tee;
+      document.getElementById('modal-sponsor').textContent = p.sponsor || 'Individual';
+
+      const nameInput = document.getElementById('checkin-name');
+      const raffleToggle = document.getElementById('raffle-toggle');
+      const confirmBtn = document.getElementById('confirm-btn');
+      const undoActions = document.getElementById('undo-actions');
+      const raffleRow = document.getElementById('raffle-toggle-row');
+
+      if (c) {
+        nameInput.value = c.alternateName || p.name;
+        raffleToggle.checked = !!c.raffle;
+        confirmBtn.textContent = 'Actualizar';
+        undoActions.style.display = 'flex';
+      } else {
+        nameInput.value = p.name;
+        raffleToggle.checked = false;
+        confirmBtn.textContent = '✓ Check-in';
+        undoActions.style.display = 'none';
+      }
+
+      raffleRow.onclick = (e) => {
+        if (e.target === raffleToggle) return;
+        raffleToggle.checked = !raffleToggle.checked;
+      };
+
+      document.getElementById('checkinModal').classList.add('active');
+    }
+
+    function closeCheckin() {
+      document.getElementById('checkinModal').classList.remove('active');
+      modalPlayer = null;
+    }
+
+    function confirmCheckin() {
+      if (!modalPlayer) return;
+      const enteredName = document.getElementById('checkin-name').value.trim();
+      const raffle = document.getElementById('raffle-toggle').checked;
+
+      if (!enteredName) {
+        alert('El nombre es requerido.');
+        document.getElementById('checkin-name').focus();
+        return;
+      }
+
+      const isAlt = enteredName !== modalPlayer.name;
+      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const existing = checkins[modalPlayer.num];
+
+      checkins[modalPlayer.num] = {
+        time: existing ? existing.time : now,
+        alternateName: isAlt ? enteredName : null,
+        raffle: raffle,
+      };
+      save();
+      const wasNew = !existing;
+      closeCheckin();
+      render();
+      if (wasNew) showSplash(modalPlayer, enteredName, raffle);
+      modalPlayer = null;
+    }
+
+    function undoCheckin() {
+      if (!modalPlayer) return;
+      if (confirm(`¿Deshacer check-in de ${getDisplayName(modalPlayer)}?`)) {
+        delete checkins[modalPlayer.num];
         save();
         render();
+        closeCheckin();
       }
     }
 
-    function drawWinner() {
-      const available = names.filter(n => !winners.find(w => w.name === n));
-      if (available.length === 0) return;
-
-      const display = document.getElementById('winnerDisplay');
-      const nameEl = document.getElementById('winnerName');
-      const label = document.getElementById('winnerLabel');
-      display.classList.add('active');
-
-      const needed = parseInt(document.getElementById('drawCount').value);
-      label.textContent = `Ganador #${winners.length + 1}`;
-
-      // Spin animation
-      let spins = 0;
-      const maxSpins = 20;
-      nameEl.classList.add('spinning');
-
-      const interval = setInterval(() => {
-        const rand = available[Math.floor(Math.random() * available.length)];
-        nameEl.textContent = rand;
-        spins++;
-        if (spins >= maxSpins) {
-          clearInterval(interval);
-          nameEl.classList.remove('spinning');
-          // Pick final winner
-          const winner = available[Math.floor(Math.random() * available.length)];
-          nameEl.textContent = winner;
-          const now = new Date().toLocaleTimeString();
-          winners.push({ name: winner, time: now });
-          save();
-          render();
-        }
-      }, 80);
+    // === Tee splash ===
+    function showSplash(player, displayName, raffle) {
+      document.getElementById('splash-tee').textContent = player.tee;
+      const hole = holeNumberFromTee(player.tee);
+      document.getElementById('splash-hole-text').textContent = hole ? `Hoyo ${hole}` : '';
+      document.getElementById('splash-name').textContent = displayName;
+      document.getElementById('splash-meta').textContent =
+        player.sponsor && player.sponsor !== 'Individual' ? player.sponsor : '';
+      document.getElementById('splash-raffle-wrap').style.display = raffle ? 'block' : 'none';
+      document.getElementById('teeSplash').classList.add('active');
     }
 
-    function confirmReset() {
-      if (confirm(`¿Reiniciar todo? Esto eliminará los ${names.length} participantes y ${winners.length} ganadores.\n\nExporta el CSV primero si necesitas un respaldo.`)) {
-        names = [];
-        winners = [];
-        save();
-        document.getElementById('winnerDisplay').classList.remove('active');
-        render();
-      }
+    function closeSplash() {
+      document.getElementById('teeSplash').classList.remove('active');
+      // Reset for next registration
+      clearSearch();
+    }
+
+    // === Report ===
+    function openReport() {
+      const total = SEED_PLAYERS.length;
+      const checkedIn = Object.keys(checkins).length;
+      const pending = total - checkedIn;
+      const raffleCount = Object.values(checkins).filter(c => c.raffle).length;
+      const altCount = Object.values(checkins).filter(c => c.alternateName).length;
+
+      document.getElementById('report-sub').textContent =
+        `${checkedIn}/${total} registrados · ${pending} pendientes · ${raffleCount} sorteo · ${altCount} alternates`;
+
+      const noshows = SEED_PLAYERS.filter(p => !isCheckedIn(p));
+      document.getElementById('missed-title').textContent = `No-shows (${noshows.length})`;
+      const noshowsHtml = noshows.length === 0
+        ? '<div class="empty" style="padding:14px;">Nadie pendiente — todos hicieron check-in 🎉</div>'
+        : noshows.sort((a,b) => compareTee(a.tee, b.tee) || a.num - b.num).map(p => `
+          <div class="report-row">
+            <span class="tee-mini">${escapeHtml(p.tee)}</span>
+            <span class="name">${escapeHtml(p.name)}</span>
+            <span class="sponsor">${escapeHtml(p.sponsor || '')}</span>
+          </div>
+        `).join('');
+      document.getElementById('missed-list').innerHTML = noshowsHtml;
+
+      const teeMap = {};
+      SEED_PLAYERS.forEach(p => {
+        if (!teeMap[p.tee]) teeMap[p.tee] = [];
+        teeMap[p.tee].push(p);
+      });
+      const openSpaces = Object.entries(teeMap)
+        .map(([tee, ps]) => ({
+          tee, missing: ps.filter(p => !isCheckedIn(p)), total: ps.length
+        }))
+        .filter(g => g.missing.length > 0)
+        .sort((a,b) => compareTee(a.tee, b.tee));
+
+      document.getElementById('open-title').textContent =
+        `Foursomes con espacios abiertos (${openSpaces.length})`;
+      const openHtml = openSpaces.length === 0
+        ? '<div class="empty" style="padding:14px;">Todos los foursomes completos</div>'
+        : openSpaces.map(g => `
+          <div class="report-row" style="flex-wrap:wrap;">
+            <span class="tee-mini">${escapeHtml(g.tee)}</span>
+            <span class="name">${g.missing.length}/${g.total} faltan: ${g.missing.map(p => escapeHtml(p.name)).join(', ')}</span>
+          </div>
+        `).join('');
+      document.getElementById('open-list').innerHTML = openHtml;
+
+      // Raffle entrants
+      const rafflers = SEED_PLAYERS.filter(isInRaffle);
+      document.getElementById('raffle-title').textContent = `Inscritos al sorteo (${rafflers.length})`;
+      const raffleHtml = rafflers.length === 0
+        ? '<div class="empty" style="padding:14px;">Sin inscritos al sorteo</div>'
+        : rafflers.map(p => {
+            const c = checkins[p.num];
+            const display = c.alternateName || p.name;
+            return `
+              <div class="report-row">
+                <span class="tee-mini">${escapeHtml(p.tee)}</span>
+                <span class="name">${escapeHtml(display)}</span>
+                <span class="sponsor">${escapeHtml(p.sponsor || '')}</span>
+              </div>
+            `;
+          }).join('');
+      document.getElementById('raffle-list').innerHTML = raffleHtml;
+
+      const alts = SEED_PLAYERS
+        .filter(p => isAlternate(p))
+        .map(p => ({ p, c: checkins[p.num] }));
+      document.getElementById('alt-title').textContent = `Alternates (${alts.length})`;
+      const altHtml = alts.length === 0
+        ? '<div class="empty" style="padding:14px;">Sin alternates</div>'
+        : alts.map(({p, c}) => `
+          <div class="report-row">
+            <span class="tee-mini">${escapeHtml(p.tee)}</span>
+            <span class="name"><b>${escapeHtml(c.alternateName)}</b> <span style="color:rgba(255,255,255,0.45); font-size:0.78rem;">en lugar de ${escapeHtml(p.name)}</span></span>
+            <span class="sponsor">${escapeHtml(c.time || '')}</span>
+          </div>
+        `).join('');
+      document.getElementById('alt-list').innerHTML = altHtml;
+
+      document.getElementById('reportModal').classList.add('active');
+    }
+
+    function closeReport() {
+      document.getElementById('reportModal').classList.remove('active');
     }
 
     function exportCSV() {
-      const rows = [['Nombre', 'Ganador', 'Hora del Sorteo']];
-      names.forEach(n => {
-        const win = winners.find(w => w.name === n);
-        rows.push([n, win ? 'SÍ' : 'No', win ? win.time : '']);
+      const rows = [['#','Tee','Nombre Original','Nombre Check-in','Es Alternate','Sponsor','En Sorteo','Estado','Hora']];
+      SEED_PLAYERS.forEach(p => {
+        const c = checkins[p.num];
+        rows.push([
+          p.num,
+          p.tee,
+          p.name,
+          c ? (c.alternateName || p.name) : '',
+          c && c.alternateName ? 'SI' : '',
+          p.sponsor || '',
+          c && c.raffle ? 'SI' : '',
+          c ? 'Registrado' : 'No-show',
+          c ? c.time : ''
+        ]);
       });
-      const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
-      const blob = new Blob([csv], { type: 'text/csv' });
+      const csv = rows.map(r =>
+        r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')
+      ).join('\n');
+      const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = 'golf-giveaway.csv';
+      a.download = `cpn-checkin-${new Date().toISOString().slice(0,10)}.csv`;
       a.click();
     }
+
+    function confirmReset() {
+      const checkedIn = Object.keys(checkins).length;
+      if (checkedIn === 0) {
+        alert('No hay check-ins para reiniciar.');
+        return;
+      }
+      if (confirm(`¿Reiniciar todos los ${checkedIn} check-ins?\n\nEl roster de jugadores se mantiene. Exporta el CSV primero si necesitas un respaldo.`)) {
+        checkins = {};
+        save();
+        render();
+        closeReport();
+      }
+    }
+
+    document.querySelectorAll('.modal-backdrop').forEach(bd => {
+      bd.addEventListener('click', e => {
+        if (e.target === bd) bd.classList.remove('active');
+      });
+    });
 
     render();
   </script>
