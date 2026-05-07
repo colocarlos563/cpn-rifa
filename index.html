@@ -461,6 +461,12 @@
         <div class="hint">Si juega un alternate, edita el nombre aquí.</div>
       </div>
 
+      <div class="field">
+        <label for="checkin-hcp">Handicap</label>
+        <input type="number" id="checkin-hcp" inputmode="decimal" step="0.1" placeholder="Ej. 18.5" />
+        <div class="hint">Opcional.</div>
+      </div>
+
       <label class="toggle-row" id="raffle-toggle-row">
         <div>
           <div class="info-text">🎟️ Entrar al sorteo</div>
@@ -661,6 +667,8 @@
       const status = alt ? '🔄' : (ci ? '✅' : '⏳');
       const time = ci ? `<div class="time">${escapeHtml(c.time || '')}</div>` : '';
       const raffleTag = (ci && c.raffle) ? '<span class="raffle-tag">🎟️ Sorteo</span>' : '';
+      const hcpTag = (ci && c.handicap !== null && c.handicap !== undefined && c.handicap !== '')
+        ? ` · HCP ${escapeHtml(String(c.handicap))}` : '';
 
       return `
         <div class="player ${cls}" data-pnum="${p.num}">
@@ -669,7 +677,7 @@
             <div class="name">${escapeHtml(display)}</div>
             ${orig}
             <div class="meta">
-              <span class="tee-tag">${escapeHtml(p.tee)}</span>${escapeHtml(p.sponsor || 'Individual')}
+              <span class="tee-tag">${escapeHtml(p.tee)}</span>${escapeHtml(p.sponsor || 'Individual')}${hcpTag}
               ${raffleTag}
             </div>
           </div>
@@ -725,14 +733,18 @@
       const undoActions = document.getElementById('undo-actions');
       const raffleRow = document.getElementById('raffle-toggle-row');
 
+      const hcpInput = document.getElementById('checkin-hcp');
+
       if (c) {
         nameInput.value = c.alternateName || p.name;
         raffleToggle.checked = !!c.raffle;
+        hcpInput.value = (c.handicap !== undefined && c.handicap !== null) ? c.handicap : '';
         confirmBtn.textContent = 'Actualizar';
         undoActions.style.display = 'flex';
       } else {
         nameInput.value = p.name;
         raffleToggle.checked = false;
+        hcpInput.value = '20';
         confirmBtn.textContent = '✓ Check-in';
         undoActions.style.display = 'none';
       }
@@ -754,6 +766,8 @@
       if (!modalPlayer) return;
       const enteredName = document.getElementById('checkin-name').value.trim();
       const raffle = document.getElementById('raffle-toggle').checked;
+      const hcpRaw = document.getElementById('checkin-hcp').value.trim();
+      const handicap = hcpRaw === '' ? null : parseFloat(hcpRaw);
 
       if (!enteredName) {
         alert('El nombre es requerido.');
@@ -769,12 +783,13 @@
         time: existing ? existing.time : now,
         alternateName: isAlt ? enteredName : null,
         raffle: raffle,
+        handicap: (handicap !== null && !isNaN(handicap)) ? handicap : null,
       };
       save();
       const wasNew = !existing;
       closeCheckin();
       render();
-      if (wasNew) showSplash(modalPlayer, enteredName, raffle);
+      if (wasNew) showSplash(modalPlayer, enteredName, raffle, checkins[modalPlayer.num].handicap);
       modalPlayer = null;
     }
 
@@ -789,13 +804,15 @@
     }
 
     // === Tee splash ===
-    function showSplash(player, displayName, raffle) {
+    function showSplash(player, displayName, raffle, handicap) {
       document.getElementById('splash-tee').textContent = player.tee;
       const hole = holeNumberFromTee(player.tee);
       document.getElementById('splash-hole-text').textContent = hole ? `Hoyo ${hole}` : '';
       document.getElementById('splash-name').textContent = displayName;
-      document.getElementById('splash-meta').textContent =
-        player.sponsor && player.sponsor !== 'Individual' ? player.sponsor : '';
+      const metaParts = [];
+      if (player.sponsor && player.sponsor !== 'Individual') metaParts.push(player.sponsor);
+      if (handicap !== null && handicap !== undefined && handicap !== '') metaParts.push(`HCP ${handicap}`);
+      document.getElementById('splash-meta').textContent = metaParts.join(' · ');
       document.getElementById('splash-raffle-wrap').style.display = raffle ? 'block' : 'none';
       document.getElementById('teeSplash').classList.add('active');
     }
@@ -895,7 +912,7 @@
     }
 
     function exportCSV() {
-      const rows = [['#','Tee','Nombre Original','Nombre Check-in','Es Alternate','Sponsor','En Sorteo','Estado','Hora']];
+      const rows = [['#','Tee','Nombre Original','Nombre Check-in','Es Alternate','Sponsor','Handicap','En Sorteo','Estado','Hora']];
       SEED_PLAYERS.forEach(p => {
         const c = checkins[p.num];
         rows.push([
@@ -905,6 +922,7 @@
           c ? (c.alternateName || p.name) : '',
           c && c.alternateName ? 'SI' : '',
           p.sponsor || '',
+          c && c.handicap !== null && c.handicap !== undefined ? c.handicap : '',
           c && c.raffle ? 'SI' : '',
           c ? 'Registrado' : 'No-show',
           c ? c.time : ''
