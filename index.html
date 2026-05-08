@@ -589,7 +589,8 @@
             <div class="subt">Check-in · Bahia Beach</div>
           </div>
         </div>
-        <div style="display:flex; gap:8px;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+          <button class="header-btn" onclick="openRosterExport()">📋 Lista</button>
           <button class="header-btn" onclick="openRaffle()">🎟️ Sorteo</button>
           <button class="header-btn" onclick="openReport()">Reporte</button>
         </div>
@@ -686,6 +687,21 @@
       <div class="splash-raffle">🎟️ Inscrito al sorteo</div>
     </div>
     <button class="splash-next" onclick="closeSplash()">Siguiente Jugador →</button>
+  </div>
+
+  <!-- Roster export modal -->
+  <div class="modal-backdrop" id="rosterExportModal">
+    <div class="modal" style="max-width: 420px;">
+      <h2>📋 Exportar Lista</h2>
+      <div class="modal-sub">Lista actual con todos los cambios (alternates, sorteo, handicaps).</div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeRosterExport()">Cerrar</button>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" onclick="exportRosterCSV(); closeRosterExport()">CSV</button>
+        <button class="btn btn-primary" onclick="exportRosterPDF(); closeRosterExport()">PDF</button>
+      </div>
+    </div>
   </div>
 
   <!-- Raffle modal -->
@@ -1510,6 +1526,114 @@
       a.href = URL.createObjectURL(blob);
       a.download = `cpn-checkin-${new Date().toISOString().slice(0,10)}.csv`;
       a.click();
+    }
+
+    function openRosterExport() {
+      document.getElementById('rosterExportModal').classList.add('active');
+    }
+    function closeRosterExport() {
+      document.getElementById('rosterExportModal').classList.remove('active');
+    }
+
+    function exportRosterCSV() {
+      const rows = [['#','Tee','Hoyo','Nombre','Original (si alt)','Es Alternate','Sponsor','Handicap','En Sorteo']];
+      const sorted = [...SEED_PLAYERS].sort((a,b) => compareTee(a.tee, b.tee) || a.num - b.num);
+      sorted.forEach(p => {
+        const c = checkins[p.num];
+        const isAlt = !!(c && c.alternateName);
+        const display = isAlt ? `${c.alternateName} (a)` : p.name;
+        const orig = isAlt ? p.name : '';
+        const hole = holeNumberFromTee(p.tee);
+        rows.push([
+          p.num, p.tee, hole, display, orig,
+          isAlt ? 'SI' : '',
+          p.sponsor || '',
+          c && c.handicap !== null && c.handicap !== undefined ? c.handicap : '',
+          c && c.raffle ? 'SI' : ''
+        ]);
+      });
+      const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `cpn-lista-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+    }
+
+    function exportRosterPDF() {
+      if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert('La librería de PDF no cargó. Verifica tu conexión a internet.');
+        return;
+      }
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+
+      const total = SEED_PLAYERS.length;
+      const altCount = Object.values(checkins).filter(c => c && c.alternateName).length;
+      const raffleCount = Object.values(checkins).filter(c => c && c.raffle).length;
+
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('es-PR', { year:'numeric', month:'long', day:'numeric' });
+      const timeStr = now.toLocaleTimeString('es-PR', { hour:'2-digit', minute:'2-digit' });
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(18);
+      doc.text('Torneo CPN 2026 — Lista de Jugadores', 40, 50);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(100);
+      doc.text(`Bahia Beach · Lista al ${dateStr} ${timeStr}`, 40, 66);
+      doc.text(
+        `${total} jugadores · ${altCount} alternates · ${raffleCount} en sorteo`,
+        40, 80
+      );
+      doc.setTextColor(0);
+
+      const sorted = [...SEED_PLAYERS].sort((a,b) => compareTee(a.tee, b.tee) || a.num - b.num);
+      const body = sorted.map(p => {
+        const c = checkins[p.num];
+        const isAlt = !!(c && c.alternateName);
+        const display = isAlt ? `${c.alternateName} (a)` : p.name;
+        const orig = isAlt ? p.name : '';
+        const hcp = (c && c.handicap !== null && c.handicap !== undefined && c.handicap !== '')
+          ? String(c.handicap) : '';
+        const raffle = c && c.raffle ? '✓' : '';
+        return ['☐', String(p.num), p.tee, display, orig, p.sponsor || '', hcp, raffle];
+      });
+
+      doc.autoTable({
+        startY: 96,
+        head: [['', '#','Tee','Nombre','Original (si alt)','Sponsor','HCP','Sorteo']],
+        body: body,
+        theme: 'striped',
+        headStyles: { fillColor: [45, 90, 39], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+        bodyStyles: { fontSize: 8.5, minCellHeight: 18 },
+        alternateRowStyles: { fillColor: [245, 248, 244] },
+        columnStyles: {
+          0: { cellWidth: 22, halign: 'center', fontSize: 12 },
+          1: { cellWidth: 28, halign: 'center' },
+          2: { cellWidth: 38, halign: 'center', fontStyle: 'bold' },
+          3: { cellWidth: 130 },
+          4: { cellWidth: 100, textColor: [120, 120, 120] },
+          5: { cellWidth: 110 },
+          6: { cellWidth: 32, halign: 'center' },
+          7: { cellWidth: 36, halign: 'center' },
+        },
+        margin: { left: 40, right: 40 },
+        didDrawPage: (data) => {
+          const pageCount = doc.internal.getNumberOfPages();
+          doc.setFontSize(8);
+          doc.setTextColor(140);
+          doc.text(
+            `Página ${data.pageNumber} de ${pageCount}`,
+            doc.internal.pageSize.getWidth() - 80,
+            doc.internal.pageSize.getHeight() - 20
+          );
+          doc.setTextColor(0);
+        }
+      });
+
+      doc.save(`cpn-lista-${now.toISOString().slice(0,10)}.pdf`);
     }
 
     function exportPDF() {
