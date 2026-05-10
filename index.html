@@ -1065,6 +1065,9 @@
               tee,
               name: data.name,
               sponsor: data.sponsor || '',
+              handicap: (data.handicap != null) ? data.handicap : null,
+              isPlaceholder: !!data.isPlaceholder,
+              sponsorId: data.sponsorId || null,
               addedAt: data.addedAt || 0,
             });
           });
@@ -1344,6 +1347,12 @@
       return (c && c.alternateName) ? c.alternateName : p.name;
     }
     function isCheckedIn(p) { return !!(checkins[p.num] && checkins[p.num].time); }
+    function getEffectiveHandicap(p) {
+      const c = checkins[p.num];
+      if (c && c.handicap != null && c.handicap !== '') return c.handicap;
+      if (p && p.handicap != null && p.handicap !== '') return p.handicap;
+      return null;
+    }
     function isAlternate(p) { return !!(checkins[p.num] && checkins[p.num].alternateName); }
     function isRenamedPending(p) {
       const c = checkins[p.num];
@@ -1423,7 +1432,7 @@
               <span>Tee ${escapeHtml(tee)}</span>
               <span class="count-badge">${checkedInGroup}/${allInGroup.length}${allInGroup.length < cap ? ` · cap ${cap}` : ''}</span>
             </div>
-            ${group.map(p => renderPlayerCard(p)).join('')}
+            ${group.map((p, idx) => renderPlayerCard(p, idx + 1)).join('')}
           </div>
         `;
       }).join('');
@@ -1435,7 +1444,7 @@
       });
     }
 
-    function renderPlayerCard(p) {
+    function renderPlayerCard(p, slot) {
       const c = checkins[p.num];
       const ci = !!(c && c.time);
       const renamed = !!(c && c.alternateName);
@@ -1455,12 +1464,13 @@
                    : '⏳';
       const time = ci ? `<div class="time">${escapeHtml(c.time || '')}</div>` : '';
       const raffleTag = (c && c.raffle) ? '<span class="raffle-tag">🎟️ Sorteo</span>' : '';
-      const hcpTag = (c && c.handicap !== null && c.handicap !== undefined && c.handicap !== '')
-        ? ` · HCP ${escapeHtml(String(c.handicap))}` : '';
+      const effHcp = getEffectiveHandicap(p);
+      const hcpTag = (effHcp != null && effHcp !== '')
+        ? ` · HCP ${escapeHtml(String(effHcp))}` : '';
 
       return `
         <div class="player ${cls}" data-pnum="${p.num}">
-          <div class="pnum">${p.num}</div>
+          <div class="pnum">${slot}</div>
           <div class="info">
             <div class="name">${escapeHtml(display)}</div>
             ${orig}
@@ -1512,7 +1522,7 @@
 
       document.getElementById('modal-title').textContent =
         checkedIn ? 'Detalle del Check-in' : (c ? 'Editar entrada' : 'Check-in');
-      document.getElementById('modal-sub').textContent = `#${p.num} · ${p.name}`;
+      document.getElementById('modal-sub').textContent = p.name;
       document.getElementById('modal-tee').textContent = p.tee;
       document.getElementById('modal-sponsor').textContent = p.sponsor || 'Individual';
 
@@ -1525,14 +1535,15 @@
 
       const hcpInput = document.getElementById('checkin-hcp');
 
+      const effHcpForModal = getEffectiveHandicap(p);
       if (c) {
         nameInput.value = c.alternateName || p.name;
         raffleToggle.checked = !!c.raffle;
-        hcpInput.value = (c.handicap !== undefined && c.handicap !== null) ? c.handicap : '';
+        hcpInput.value = (effHcpForModal != null && effHcpForModal !== '') ? effHcpForModal : '';
       } else {
         nameInput.value = p.name;
         raffleToggle.checked = false;
-        hcpInput.value = '20';
+        hcpInput.value = (effHcpForModal != null && effHcpForModal !== '') ? effHcpForModal : '20';
       }
 
       if (checkedIn) {
@@ -1929,20 +1940,22 @@
 
     function exportCSV() {
       const rows = [['#','Tee','Nombre Original','Nombre Activo','Es Alternate','Sponsor','Handicap','En Sorteo','Estado','Hora']];
-      SEED_PLAYERS.forEach(p => {
+      const sortedCSV = [...SEED_PLAYERS].sort((a,b) => compareTee(a.tee, b.tee) || (a.addedAt||0) - (b.addedAt||0));
+      sortedCSV.forEach((p, i) => {
         const c = checkins[p.num];
         const ci = !!(c && c.time);
         const isAlt = !!(c && c.alternateName);
         const activeName = isAlt ? `${c.alternateName} (a)` : (ci ? p.name : '');
         const estado = ci ? 'Registrado' : (isAlt ? 'Pre-asignado (alt)' : 'No-show');
+        const eh = getEffectiveHandicap(p);
         rows.push([
-          p.num,
+          i + 1,
           p.tee,
           p.name,
           activeName,
           isAlt ? 'SI' : '',
           p.sponsor || '',
-          c && c.handicap !== null && c.handicap !== undefined ? c.handicap : '',
+          (eh != null && eh !== '') ? eh : '',
           c && c.raffle ? 'SI' : '',
           estado,
           ci ? c.time : ''
@@ -2434,18 +2447,19 @@ Cualquier duda, escríbenos.
 
     function exportRosterCSV() {
       const rows = [['#','Tee','Hoyo','Nombre','Original (si alt)','Es Alternate','Sponsor','Handicap','En Sorteo']];
-      const sorted = [...SEED_PLAYERS].sort((a,b) => compareTee(a.tee, b.tee) || a.num - b.num);
-      sorted.forEach(p => {
+      const sorted = [...SEED_PLAYERS].sort((a,b) => compareTee(a.tee, b.tee) || (a.addedAt||0) - (b.addedAt||0));
+      sorted.forEach((p, i) => {
         const c = checkins[p.num];
         const isAlt = !!(c && c.alternateName);
         const display = isAlt ? `${c.alternateName} (a)` : p.name;
         const orig = isAlt ? p.name : '';
         const hole = holeNumberFromTee(p.tee);
+        const eh = getEffectiveHandicap(p);
         rows.push([
-          p.num, p.tee, hole, display, orig,
+          i + 1, p.tee, hole, display, orig,
           isAlt ? 'SI' : '',
           p.sponsor || '',
-          c && c.handicap !== null && c.handicap !== undefined ? c.handicap : '',
+          (eh != null && eh !== '') ? eh : '',
           c && c.raffle ? 'SI' : ''
         ]);
       });
@@ -2486,16 +2500,16 @@ Cualquier duda, escríbenos.
       );
       doc.setTextColor(0);
 
-      const sorted = [...SEED_PLAYERS].sort((a,b) => compareTee(a.tee, b.tee) || a.num - b.num);
-      const body = sorted.map(p => {
+      const sorted = [...SEED_PLAYERS].sort((a,b) => compareTee(a.tee, b.tee) || (a.addedAt||0) - (b.addedAt||0));
+      const body = sorted.map((p, i) => {
         const c = checkins[p.num];
         const isAlt = !!(c && c.alternateName);
         const display = isAlt ? `${c.alternateName} (a)` : p.name;
         const orig = isAlt ? p.name : '';
-        const hcp = (c && c.handicap !== null && c.handicap !== undefined && c.handicap !== '')
-          ? String(c.handicap) : '';
+        const eh = getEffectiveHandicap(p);
+        const hcp = (eh != null && eh !== '') ? String(eh) : '';
         const raffle = c && c.raffle ? '✓' : '';
-        return ['☐', String(p.num), p.tee, display, orig, p.sponsor || '', hcp, raffle];
+        return ['☐', String(i + 1), p.tee, display, orig, p.sponsor || '', hcp, raffle];
       });
 
       doc.autoTable({
@@ -2566,8 +2580,8 @@ Cualquier duda, escríbenos.
       doc.setTextColor(0);
 
       // Roster table sorted by tee
-      const sorted = [...SEED_PLAYERS].sort((a,b) => compareTee(a.tee, b.tee) || a.num - b.num);
-      const body = sorted.map(p => {
+      const sorted = [...SEED_PLAYERS].sort((a,b) => compareTee(a.tee, b.tee) || (a.addedAt||0) - (b.addedAt||0));
+      const body = sorted.map((p, i) => {
         const c = checkins[p.num];
         const ci = !!(c && c.time);
         const isAlt = !!(c && c.alternateName);
@@ -2575,10 +2589,10 @@ Cualquier duda, escríbenos.
         const orig = isAlt ? p.name : '';
         const status = ci ? (isAlt ? 'Alternate' : 'Registrado')
                           : (isAlt ? 'Pre-asignado' : 'No-show');
-        const hcp = (c && c.handicap !== null && c.handicap !== undefined && c.handicap !== '')
-          ? String(c.handicap) : '';
+        const eh = getEffectiveHandicap(p);
+        const hcp = (eh != null && eh !== '') ? String(eh) : '';
         return [
-          String(p.num),
+          String(i + 1),
           p.tee,
           display,
           orig,

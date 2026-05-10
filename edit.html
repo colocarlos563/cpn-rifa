@@ -231,24 +231,42 @@
         ? `<div class="sponsor-logo"><img src="${sponsor.logo}" /></div>`
         : '';
 
-      const carts = [...new Set(players.map(p => `${p.hole}${p.cart}`))].join(', ');
+      // Group players by their real cart (tee), sort consistently, label as Cart 1..N
+      const grouped = {};
+      players.forEach((p, idx) => {
+        const tee = `${p.hole}${p.cart}`;
+        if (!grouped[tee]) grouped[tee] = [];
+        grouped[tee].push({ p, idx });
+      });
+      const sortedTees = Object.keys(grouped).sort((a, b) => {
+        const ma = a.match(/^(\d+)([A-Z]?)/) || [];
+        const mb = b.match(/^(\d+)([A-Z]?)/) || [];
+        const ha = parseInt(ma[1]) || 0, hb = parseInt(mb[1]) || 0;
+        if (ha !== hb) return ha - hb;
+        return (ma[2] || '').localeCompare(mb[2] || '');
+      });
 
-      const playersHtml = players.map((p, idx) => {
-        const isPlaceholder = !!p.isPlaceholder || /^Player\s+\d+$/i.test(p.name || '');
-        const cls = isPlaceholder ? 'player-card placeholder' : 'player-card';
-        return `
-          <div class="${cls}">
-            <div class="pcart">Hoyo ${p.hole} · Cart ${p.cart}</div>
-            <div class="field">
-              <label for="pname-${idx}">Nombre del jugador *</label>
-              <input type="text" id="pname-${idx}" data-idx="${idx}" autocomplete="off" autocapitalize="words" value="${escapeHtml(p.name || '')}" />
+      const cartsHtml = sortedTees.map((tee, cartIdx) => {
+        const items = grouped[tee];
+        const cartLabel = `Cart ${cartIdx + 1}`;
+        const slotsHtml = items.map(({ p, idx }, slotIdx) => {
+          const isPlaceholder = !!p.isPlaceholder || /^Player\s+\d+$/i.test(p.name || '');
+          const cls = isPlaceholder ? 'player-card placeholder' : 'player-card';
+          return `
+            <div class="${cls}">
+              <div class="pcart">${cartLabel} · Jugador ${slotIdx + 1}</div>
+              <div class="field">
+                <label for="pname-${idx}">Nombre del jugador *</label>
+                <input type="text" id="pname-${idx}" data-idx="${idx}" autocomplete="off" autocapitalize="words" value="${escapeHtml(p.name || '')}" />
+              </div>
+              <div class="field" style="margin-bottom:0;">
+                <label for="phcp-${idx}">Handicap (opcional)</label>
+                <input type="number" id="phcp-${idx}" data-idx="${idx}" step="0.1" inputmode="decimal" value="${p.handicap != null ? p.handicap : ''}" placeholder="Ej. 18" />
+              </div>
             </div>
-            <div class="field" style="margin-bottom:0;">
-              <label for="phcp-${idx}">Handicap (opcional)</label>
-              <input type="number" id="phcp-${idx}" data-idx="${idx}" step="0.1" inputmode="decimal" value="${p.handicap != null ? p.handicap : ''}" placeholder="Ej. 18" />
-            </div>
-          </div>
-        `;
+          `;
+        }).join('');
+        return slotsHtml;
       }).join('');
 
       document.getElementById('content').innerHTML = `
@@ -256,13 +274,14 @@
         <div class="card">
           <div class="info-row"><span class="lbl">Sponsor</span><span class="val">${escapeHtml(sponsor.name)}</span></div>
           <div class="info-row"><span class="lbl">Tier</span><span class="val">${TIER_LABELS[sponsor.tier] || sponsor.tier}</span></div>
-          <div class="info-row"><span class="lbl">Carts asignados</span><span class="val" style="font-family:monospace;">${escapeHtml(carts)}</span></div>
+          <div class="info-row"><span class="lbl">Carts reservados</span><span class="val">${sortedTees.length}</span></div>
           <div class="info-row"><span class="lbl">Total jugadores</span><span class="val">${players.length}</span></div>
         </div>
 
         <div class="card">
           <div style="font-size:0.78rem; text-transform:uppercase; letter-spacing:1.5px; color:#a8d5a2; margin-bottom:12px; font-weight:800;">Tus Jugadores</div>
-          ${playersHtml}
+          <div class="hint" style="font-size:0.8rem; color:rgba(255,255,255,0.55); margin-bottom:14px;">Organizadores asignan los hoyos del torneo. Aquí solo llenas los nombres.</div>
+          ${cartsHtml}
         </div>
 
         <button class="save-btn" id="save-btn" onclick="saveAll()">💾 Guardar Cambios</button>
