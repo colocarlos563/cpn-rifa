@@ -5,7 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Torneo CPN 2026 — Check-in</title>
+  <title>Torneo CPN — Check-in / Snapshot</title>
+  <script>
+    document.documentElement.dataset.mode =
+      window.location.pathname.startsWith('/snapshot') ? 'admin' : 'checkin';
+  </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <script type="module">
@@ -503,6 +507,8 @@
       .splash-tee { font-size: 9rem; }
     }
 
+    html[data-mode="checkin"] [data-admin-only] { display: none !important; }
+
     /* PIN gate */
     .pin-gate {
       position: fixed; inset: 0;
@@ -590,11 +596,12 @@
           </div>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
-          <button class="header-btn" onclick="openAddPlayer()">+ Jugador</button>
-          <button class="header-btn" onclick="openRosterExport()">📋 Lista</button>
+          <button class="header-btn" onclick="openAddPlayer()" data-admin-only>+ Jugador</button>
+          <button class="header-btn" onclick="openSponsors()" data-admin-only>👥 Sponsors</button>
+          <button class="header-btn" onclick="openRosterExport()" data-admin-only>📋 Lista</button>
           <button class="header-btn" onclick="openRaffle()">🎟️ Sorteo</button>
           <button class="header-btn" onclick="openReport()">Reporte</button>
-          <button class="header-btn" onclick="openSettings()" title="Ajustes">⚙️</button>
+          <button class="header-btn" onclick="openSettings()" title="Ajustes" data-admin-only>⚙️</button>
         </div>
       </div>
 
@@ -695,6 +702,100 @@
     <button class="splash-next" onclick="closeSplash()">Siguiente Jugador →</button>
   </div>
 
+  <!-- Sponsors list modal -->
+  <div class="modal-backdrop" id="sponsorsModal">
+    <div class="modal" style="max-width: 720px;">
+      <h2>👥 Sponsors</h2>
+      <div class="modal-sub">Cada sponsor reserva carts y recibe un link para llenar nombres después.</div>
+
+      <div style="margin-bottom: 14px; display:flex; justify-content:space-between; align-items:center; gap:10px;">
+        <span class="pill" id="sponsors-count">0 sponsors</span>
+        <button class="btn btn-primary" style="flex:0 0 auto; padding:10px 16px; font-size:0.85rem;" onclick="openAddSponsor()">+ Nuevo Sponsor</button>
+      </div>
+
+      <div id="sponsors-list" style="max-height:55vh; overflow-y:auto;"></div>
+
+      <div class="modal-actions" style="margin-top:16px;">
+        <button class="btn btn-secondary" onclick="closeSponsors()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Sponsor modal -->
+  <div class="modal-backdrop" id="sponsorFormModal">
+    <div class="modal" style="max-width: 520px;">
+      <h2 id="sponsor-form-title">+ Nuevo Sponsor</h2>
+      <div class="modal-sub" id="sponsor-form-sub">Reserva carts y genera un link para que el sponsor llene los nombres.</div>
+
+      <div class="field">
+        <label for="sp-name">Nombre del sponsor / empresa *</label>
+        <input type="text" id="sp-name" autocomplete="off" placeholder="Ej. First Bank" />
+      </div>
+
+      <div class="field">
+        <label for="sp-tier">Tier *</label>
+        <select id="sp-tier">
+          <option value="1">Tier 1 — 8 jugadores</option>
+          <option value="2">Tier 2 — 4 jugadores</option>
+          <option value="3">Tier 3 — 2 jugadores</option>
+          <option value="individual">Individual — 1 jugador</option>
+        </select>
+        <div class="hint" id="sp-tier-hint">Reserva los carts apropiados según el formato actual.</div>
+      </div>
+
+      <div class="field">
+        <label for="sp-contact">Contacto (nombre)</label>
+        <input type="text" id="sp-contact" autocomplete="off" />
+      </div>
+
+      <div class="form-row" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:16px;">
+        <div class="field" style="margin-bottom:0;">
+          <label for="sp-email">Email *</label>
+          <input type="email" id="sp-email" autocomplete="off" placeholder="contacto@empresa.com" />
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label for="sp-phone">Teléfono</label>
+          <input type="tel" id="sp-phone" autocomplete="off" placeholder="787-555-0100" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="sp-logo">Logo (PNG, JPG, SVG o PDF)</label>
+        <input type="file" id="sp-logo" accept="image/png,image/jpeg,image/svg+xml,application/pdf" style="padding:10px; background:rgba(255,255,255,0.05); border-radius:10px; border:2px dashed rgba(255,255,255,0.2); width:100%; color:white;" />
+        <div class="hint">Opcional. Se almacena con el record del sponsor.</div>
+        <div id="sp-logo-preview" style="margin-top:10px;"></div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeSponsorForm()">Cancelar</button>
+        <button class="btn btn-primary" id="sp-confirm" onclick="confirmSponsor()">Reservar carts</button>
+      </div>
+
+      <div class="modal-actions" id="sp-delete-actions" style="display:none;">
+        <button class="btn btn-danger" onclick="confirmDeleteSponsor()">Eliminar Sponsor + Sus Carts</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sponsor link share modal -->
+  <div class="modal-backdrop" id="sponsorLinkModal">
+    <div class="modal" style="max-width: 480px;">
+      <h2>🔗 Link del Sponsor</h2>
+      <div class="modal-sub" id="sl-sub"></div>
+
+      <div class="field">
+        <label>Link para llenar nombres</label>
+        <input type="text" id="sl-url" readonly onclick="this.select()" style="font-size:0.85rem;" />
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeSponsorLink()">Cerrar</button>
+        <button class="btn btn-primary" onclick="copySponsorLink()">Copiar Link</button>
+        <button class="btn btn-primary" onclick="emailSponsorLink()">Enviar Email</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Add Player modal -->
   <div class="modal-backdrop" id="addPlayerModal">
     <div class="modal" style="max-width: 460px;">
@@ -753,16 +854,48 @@
         <div class="hint">Determina cuándo un cart se considera "completo".</div>
       </div>
 
+      <div style="font-size:0.78rem; text-transform:uppercase; letter-spacing:1.5px; color:#a8d5a2; margin:18px 0 10px; font-weight:800;">Costo por tier ($)</div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:14px;">
+        <div class="field" style="margin-bottom:0;">
+          <label for="settings-tier1-cost">Tier 1 (8 jug.)</label>
+          <input type="number" id="settings-tier1-cost" min="0" step="100" placeholder="0" oninput="onTierCostChange()" />
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label for="settings-tier2-cost">Tier 2 (4 jug.)</label>
+          <input type="number" id="settings-tier2-cost" min="0" step="100" placeholder="0" oninput="onTierCostChange()" />
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label for="settings-tier3-cost">Tier 3 (2 jug.)</label>
+          <input type="number" id="settings-tier3-cost" min="0" step="50" placeholder="0" oninput="onTierCostChange()" />
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label for="settings-tierindividual-cost">Individual</label>
+          <input type="number" id="settings-tierindividual-cost" min="0" step="25" placeholder="0" oninput="onTierCostChange()" />
+        </div>
+      </div>
+      <div class="hint" style="margin-bottom:14px;">Revenue total se calcula a partir del tier de cada sponsor registrado.</div>
+
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="closeSettings()">Cerrar</button>
       </div>
+
+      <hr style="border:none; border-top:1px solid rgba(255,255,255,0.1); margin:20px 0;">
+      <div style="font-size:0.78rem; text-transform:uppercase; letter-spacing:1.5px; color:#a8d5a2; margin-bottom:10px; font-weight:800;">Torneo</div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="saveTournamentSnapshot()">💾 Guardar Snapshot del Torneo</button>
+      </div>
+      <div class="hint" style="margin-bottom:12px;">Archiva el estado actual (roster, check-ins, ganadores, sponsors, settings) en la colección <code>tournaments</code>.</div>
+      <div class="modal-actions">
+        <button class="btn btn-danger" onclick="startNewTournament()">🆕 Nuevo Torneo (limpiar todo)</button>
+      </div>
+      <div class="hint" style="margin-bottom:14px;">Recomendado: guarda el snapshot primero. Luego limpia todas las colecciones para empezar de cero.</div>
 
       <hr style="border:none; border-top:1px solid rgba(255,255,255,0.1); margin:20px 0;">
       <div style="font-size:0.78rem; text-transform:uppercase; letter-spacing:1.5px; color:#ff6b6b; margin-bottom:10px; font-weight:800;">Zona Peligrosa</div>
       <div class="modal-actions">
         <button class="btn btn-danger" onclick="confirmResetRoster()">Borrar Todo el Roster</button>
       </div>
-      <div class="hint" style="margin-top:8px;">Borra todos los jugadores, check-ins y ganadores. No se puede deshacer.</div>
+      <div class="hint" style="margin-top:8px;">Borra todos los jugadores, check-ins y ganadores (NO borra sponsors). No se puede deshacer.</div>
     </div>
   </div>
 
@@ -944,7 +1077,7 @@
         (err) => console.error('roster sync error:', err)
       );
 
-      // Settings (format choice)
+      // Settings (format choice + tier pricing)
       onSnapshot(doc(db, 'settings', 'main'),
         (snap) => {
           const data = snap.data() || {};
@@ -955,9 +1088,31 @@
           if (fmtBadge) fmtBadge.textContent = formatLabel();
           const fmtSel = document.getElementById('settings-format');
           if (fmtSel) fmtSel.value = formatChoice;
+          // Tier pricing
+          tierPricing = {
+            '1': Number(data.tier1Cost) || 0,
+            '2': Number(data.tier2Cost) || 0,
+            '3': Number(data.tier3Cost) || 0,
+            'individual': Number(data.individualCost) || 0,
+          };
+          ['1','2','3','individual'].forEach(t => {
+            const el = document.getElementById(`settings-tier${t}-cost`);
+            if (el && document.activeElement !== el) el.value = String(tierPricing[t] || '');
+          });
           if (typeof render === 'function') render();
+          if (document.getElementById('sponsorsModal').classList.contains('active')) renderSponsorsList();
         },
         (err) => console.error('settings sync error:', err)
+      );
+
+      // Sponsors collection
+      onSnapshot(query(collection(db, 'sponsors'), orderBy('createdAt')),
+        (snap) => {
+          sponsors = [];
+          snap.forEach(d => sponsors.push({ id: d.id, ...d.data() }));
+          if (document.getElementById('sponsorsModal').classList.contains('active')) renderSponsorsList();
+        },
+        (err) => console.error('sponsors sync error:', err)
       );
 
       onSnapshot(collection(db, 'checkins'),
@@ -1026,6 +1181,93 @@
         snap.forEach(d => batch.delete(d.ref));
         await batch.commit();
       } catch (e) { console.error('resetRoster failed:', e); }
+    }
+
+    // === Sponsors collection ===
+    let sponsors = [];
+    let tierPricing = { '1': 0, '2': 0, '3': 0, 'individual': 0 };
+    const TIER_PLAYERS = { '1': 8, '2': 4, '3': 2, 'individual': 1 };
+    const TIER_LABELS = { '1': 'Tier 1', '2': 'Tier 2', '3': 'Tier 3', 'individual': 'Individual' };
+
+    async function fbAddSponsor(data) {
+      if (!fbReady) return null;
+      try {
+        const { db, collection, addDoc } = window.fb;
+        const ref = await addDoc(collection(db, 'sponsors'), { ...data, createdAt: Date.now() });
+        return ref.id;
+      } catch (e) { console.error('addSponsor failed:', e); return null; }
+    }
+    async function fbUpdateSponsor(id, fields) {
+      if (!fbReady) return;
+      try {
+        const { db, doc, setDoc } = window.fb;
+        await setDoc(doc(db, 'sponsors', String(id)), fields, { merge: true });
+      } catch (e) { console.error('updateSponsor failed:', e); }
+    }
+    async function fbDeleteSponsor(id) {
+      if (!fbReady) return;
+      try {
+        const { db, doc, deleteDoc, collection, getDocs, writeBatch, query, where } = window.fb;
+        // Delete sponsor
+        await deleteDoc(doc(db, 'sponsors', String(id)));
+        // Delete their roster entries
+        const snap = await getDocs(query(collection(db, 'roster'), where('sponsorId', '==', String(id))));
+        const batch = writeBatch(db);
+        snap.forEach(d => {
+          batch.delete(d.ref);
+          batch.delete(doc(db, 'checkins', d.id));
+        });
+        await batch.commit();
+      } catch (e) { console.error('deleteSponsor failed:', e); }
+    }
+    async function fbResetSponsors() {
+      if (!fbReady) return;
+      try {
+        const { db, collection, getDocs, writeBatch } = window.fb;
+        const snap = await getDocs(collection(db, 'sponsors'));
+        const batch = writeBatch(db);
+        snap.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+      } catch (e) { console.error('resetSponsors failed:', e); }
+    }
+
+    // === Cart auto-assignment ===
+    function findFreeCarts(needed) {
+      const usage = {};
+      SEED_PLAYERS.forEach(p => { usage[p.tee] = (usage[p.tee] || 0) + 1; });
+      const free = [];
+      for (let h = 1; h <= 18; h++) {
+        for (const c of ['A', 'B']) {
+          const tee = `${h}${c}`;
+          if (!usage[tee]) free.push({ hole: h, cart: c, tee });
+          if (free.length >= needed) return free;
+        }
+      }
+      return null;
+    }
+    function findOpenSeats(needed) {
+      const cap = maxPerCart();
+      const usage = {};
+      SEED_PLAYERS.forEach(p => { usage[p.tee] = (usage[p.tee] || 0) + 1; });
+      const seats = [];
+      // Prefer carts that already have at least 1 player (filling existing carts before opening new ones)
+      for (let pass = 0; pass < 2; pass++) {
+        for (let h = 1; h <= 18; h++) {
+          for (const c of ['A', 'B']) {
+            const tee = `${h}${c}`;
+            const cnt = usage[tee] || 0;
+            const wantPartial = pass === 0 ? cnt > 0 && cnt < cap : cnt === 0;
+            if (wantPartial) {
+              const open = cap - cnt;
+              for (let i = 0; i < open; i++) {
+                seats.push({ hole: h, cart: c, tee });
+                if (seats.length >= needed) return seats;
+              }
+            }
+          }
+        }
+      }
+      return seats.length >= needed ? seats : null;
     }
 
     async function fbSetCheckin(pnum, data) {
@@ -1716,6 +1958,284 @@
       a.click();
     }
 
+    // === Sponsors UI ===
+    let editingSponsor = null;
+    let pendingLogo = null; // data URL captured from file input
+
+    function openSponsors() {
+      renderSponsorsList();
+      document.getElementById('sponsorsModal').classList.add('active');
+    }
+    function closeSponsors() {
+      document.getElementById('sponsorsModal').classList.remove('active');
+    }
+
+    function sponsorRevenue(s) {
+      const tier = s.tier;
+      return Number(tierPricing[tier] || 0);
+    }
+    function totalRevenue() {
+      return sponsors.reduce((sum, s) => sum + sponsorRevenue(s), 0);
+    }
+
+    function fmtMoney(n) {
+      const v = Number(n) || 0;
+      return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function sponsorFillProgress(s) {
+      const ids = s.playerIds || [];
+      const players = ids
+        .map(id => SEED_PLAYERS.find(p => p.num === id))
+        .filter(Boolean);
+      const total = players.length;
+      const named = players.filter(p => p.name && !/^Player\s+\d+$/i.test(p.name)).length;
+      return { named, total };
+    }
+
+    function renderSponsorsList() {
+      document.getElementById('sponsors-count').textContent =
+        `${sponsors.length} sponsor${sponsors.length !== 1 ? 's' : ''} · Revenue ${fmtMoney(totalRevenue())}`;
+
+      const list = document.getElementById('sponsors-list');
+      if (sponsors.length === 0) {
+        list.innerHTML = '<div class="empty" style="padding:24px;">Aún no hay sponsors.</div>';
+        return;
+      }
+      list.innerHTML = sponsors.map(s => {
+        const { named, total } = sponsorFillProgress(s);
+        const carts = (s.cartIds || []).join(', ') || '—';
+        const logoHtml = s.logo
+          ? (s.logo.startsWith('data:application/pdf')
+              ? '<span style="font-size:1.4rem;">📄</span>'
+              : `<img src="${s.logo}" style="width:42px; height:42px; object-fit:contain; background:white; border-radius:6px; padding:2px;" />`)
+          : '<div style="width:42px; height:42px; background:rgba(255,255,255,0.05); border-radius:6px; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.3); font-size:0.7rem;">SIN<br>LOGO</div>';
+        const fillColor = named === total ? '#7ddc7d' : (named > 0 ? '#f0c040' : '#ff9ec7');
+        return `
+          <div style="background:rgba(0,0,0,0.22); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:12px; margin-bottom:8px; display:flex; align-items:center; gap:12px;">
+            ${logoHtml}
+            <div style="flex:1; min-width:0;">
+              <div style="font-weight:700; font-size:1rem;">${escapeHtml(s.name)} <span style="font-size:0.75rem; color:rgba(255,255,255,0.5); font-weight:400;">${TIER_LABELS[s.tier] || s.tier}</span></div>
+              <div style="font-size:0.8rem; color:rgba(255,255,255,0.55); margin-top:2px;">
+                Carts: <span style="font-family:monospace;">${escapeHtml(carts)}</span>
+                · <span style="color:${fillColor}; font-weight:600;">${named}/${total} nombres</span>
+                · ${fmtMoney(sponsorRevenue(s))}
+              </div>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button class="btn btn-secondary" style="padding:8px 12px; font-size:0.78rem;" onclick="openSponsorLink('${s.id}')">🔗 Link</button>
+              <button class="btn btn-secondary" style="padding:8px 12px; font-size:0.78rem;" onclick="openEditSponsor('${s.id}')">Editar</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openAddSponsor() {
+      editingSponsor = null;
+      pendingLogo = null;
+      document.getElementById('sponsor-form-title').textContent = '+ Nuevo Sponsor';
+      document.getElementById('sp-confirm').textContent = 'Reservar carts';
+      document.getElementById('sp-delete-actions').style.display = 'none';
+      document.getElementById('sp-name').value = '';
+      document.getElementById('sp-tier').value = '1';
+      document.getElementById('sp-contact').value = '';
+      document.getElementById('sp-email').value = '';
+      document.getElementById('sp-phone').value = '';
+      document.getElementById('sp-logo').value = '';
+      document.getElementById('sp-logo-preview').innerHTML = '';
+      document.getElementById('sponsorFormModal').classList.add('active');
+      setTimeout(() => document.getElementById('sp-name').focus(), 80);
+    }
+
+    function openEditSponsor(sponsorId) {
+      const s = sponsors.find(x => x.id === sponsorId);
+      if (!s) return;
+      editingSponsor = s;
+      pendingLogo = s.logo || null;
+      document.getElementById('sponsor-form-title').textContent = `Editar: ${s.name}`;
+      document.getElementById('sp-confirm').textContent = 'Guardar cambios';
+      document.getElementById('sp-delete-actions').style.display = 'flex';
+      document.getElementById('sp-name').value = s.name || '';
+      document.getElementById('sp-tier').value = s.tier || '1';
+      document.getElementById('sp-contact').value = s.contactName || '';
+      document.getElementById('sp-email').value = s.email || '';
+      document.getElementById('sp-phone').value = s.phone || '';
+      document.getElementById('sp-logo').value = '';
+      const preview = document.getElementById('sp-logo-preview');
+      preview.innerHTML = s.logo
+        ? (s.logo.startsWith('data:application/pdf')
+            ? '<div style="font-size:0.85rem; color:rgba(255,255,255,0.55);">📄 Logo (PDF) ya cargado</div>'
+            : `<img src="${s.logo}" style="max-width:120px; max-height:80px; background:white; padding:4px; border-radius:6px;" />`)
+        : '';
+      document.getElementById('sponsorFormModal').classList.add('active');
+      // Tier change after creation isn't supported (carts already assigned)
+      document.getElementById('sp-tier').disabled = true;
+      document.getElementById('sp-tier-hint').textContent = 'El tier no se puede cambiar (los carts ya están asignados). Elimina y crea de nuevo si necesitas otro tier.';
+    }
+
+    function closeSponsorForm() {
+      document.getElementById('sponsorFormModal').classList.remove('active');
+      document.getElementById('sp-tier').disabled = false;
+      document.getElementById('sp-tier-hint').textContent = 'Reserva los carts apropiados según el formato actual.';
+      editingSponsor = null;
+      pendingLogo = null;
+    }
+
+    document.addEventListener('change', e => {
+      if (e.target && e.target.id === 'sp-logo') {
+        const file = e.target.files && e.target.files[0];
+        if (!file) { pendingLogo = null; return; }
+        if (file.size > 1.5 * 1024 * 1024) {
+          alert('Logo muy grande (máx 1.5 MB).');
+          e.target.value = '';
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+          pendingLogo = reader.result;
+          const preview = document.getElementById('sp-logo-preview');
+          preview.innerHTML = pendingLogo.startsWith('data:application/pdf')
+            ? '<div style="font-size:0.85rem; color:#a8d5a2;">📄 PDF cargado</div>'
+            : `<img src="${pendingLogo}" style="max-width:120px; max-height:80px; background:white; padding:4px; border-radius:6px;" />`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    async function confirmSponsor() {
+      const name = document.getElementById('sp-name').value.trim();
+      const tier = document.getElementById('sp-tier').value;
+      const contactName = document.getElementById('sp-contact').value.trim();
+      const email = document.getElementById('sp-email').value.trim();
+      const phone = document.getElementById('sp-phone').value.trim();
+
+      if (!name) { alert('Nombre del sponsor requerido.'); return; }
+      if (!email) { alert('Email requerido.'); return; }
+      if (!TIER_PLAYERS[tier]) { alert('Tier inválido.'); return; }
+
+      if (editingSponsor) {
+        // Edit existing — only contact fields and logo, not tier/carts
+        const updates = { name, contactName, email, phone };
+        if (pendingLogo !== null) updates.logo = pendingLogo;
+        await fbUpdateSponsor(editingSponsor.id, updates);
+        // Update sponsor name on all their roster players
+        const ids = editingSponsor.playerIds || [];
+        for (const pid of ids) {
+          await fbUpdatePlayer(pid, { sponsor: name });
+        }
+        closeSponsorForm();
+        return;
+      }
+
+      // New sponsor — assign carts/seats
+      const playerCount = TIER_PLAYERS[tier];
+      const cap = maxPerCart();
+      let assignments;
+      if (tier === 'individual') {
+        assignments = findOpenSeats(1);
+      } else {
+        const cartCount = Math.ceil(playerCount / cap);
+        const carts = findFreeCarts(cartCount);
+        if (!carts) { alert(`No hay ${cartCount} carts libres para Tier ${tier}.`); return; }
+        assignments = [];
+        for (const cart of carts) {
+          for (let i = 0; i < cap && assignments.length < playerCount; i++) {
+            assignments.push(cart);
+          }
+        }
+      }
+      if (!assignments) { alert('No hay espacio suficiente.'); return; }
+
+      const editToken = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(36).slice(2));
+      const sponsorId = await fbAddSponsor({
+        name, tier, contactName, email, phone,
+        logo: pendingLogo || null,
+        editToken,
+        playerIds: [],
+      });
+      if (!sponsorId) { alert('Error guardando sponsor.'); return; }
+
+      // Create placeholder roster entries
+      const playerIds = [];
+      const usedTees = new Set();
+      for (let i = 0; i < assignments.length; i++) {
+        const a = assignments[i];
+        usedTees.add(a.tee);
+        const pid = await fbAddPlayer({
+          name: `Player ${i + 1}`,
+          hole: a.hole,
+          cart: a.cart,
+          sponsor: name,
+          sponsorId: String(sponsorId),
+          isPlaceholder: true,
+        });
+        if (pid) playerIds.push(pid);
+      }
+      const cartIds = Array.from(usedTees);
+      await fbUpdateSponsor(sponsorId, { playerIds, cartIds });
+
+      closeSponsorForm();
+      // Show share link
+      setTimeout(() => openSponsorLink(sponsorId, editToken), 200);
+    }
+
+    async function confirmDeleteSponsor() {
+      if (!editingSponsor) return;
+      if (!confirm(`¿Eliminar a "${editingSponsor.name}" y liberar sus carts? Esto borra a todos sus jugadores del roster.`)) return;
+      await fbDeleteSponsor(editingSponsor.id);
+      closeSponsorForm();
+    }
+
+    function buildEditUrl(token) {
+      return `${window.location.origin}/edit?token=${encodeURIComponent(token)}`;
+    }
+
+    function openSponsorLink(sponsorId, freshToken) {
+      const s = sponsors.find(x => x.id === sponsorId) || (freshToken ? { id: sponsorId, editToken: freshToken } : null);
+      const token = (s && s.editToken) || freshToken;
+      if (!token) { alert('No se encontró el token del sponsor.'); return; }
+      const url = buildEditUrl(token);
+      const subline = s && s.name ? `${s.name} · comparte este link para llenar nombres.` : 'Comparte este link para llenar nombres.';
+      document.getElementById('sl-sub').textContent = subline;
+      document.getElementById('sl-url').value = url;
+      // Stash sponsor for email use
+      document.getElementById('sponsorLinkModal').dataset.spid = sponsorId || '';
+      document.getElementById('sponsorLinkModal').classList.add('active');
+    }
+    function closeSponsorLink() {
+      document.getElementById('sponsorLinkModal').classList.remove('active');
+    }
+    function copySponsorLink() {
+      const inp = document.getElementById('sl-url');
+      inp.select();
+      navigator.clipboard.writeText(inp.value).then(
+        () => { const old = inp.style.borderColor; inp.style.borderColor = '#7ddc7d'; setTimeout(() => inp.style.borderColor = old, 600); },
+        () => document.execCommand('copy')
+      );
+    }
+    function emailSponsorLink() {
+      const sid = document.getElementById('sponsorLinkModal').dataset.spid;
+      const s = sponsors.find(x => x.id === sid);
+      if (!s) { alert('Sponsor no encontrado.'); return; }
+      const url = buildEditUrl(s.editToken);
+      const subj = `Torneo CPN — link para tu equipo (${s.name})`;
+      const body = `Hola${s.contactName ? ' ' + s.contactName : ''},
+
+Gracias por participar en el Torneo CPN como ${TIER_LABELS[s.tier] || s.tier}.
+
+Usa este link para registrar a tus jugadores:
+${url}
+
+El link reserva tus carts (${(s.cartIds || []).join(', ')}). Puedes volver a editar cualquier nombre antes del torneo.
+
+Cualquier duda, escríbenos.
+
+—
+`;
+      window.location.href = `mailto:${encodeURIComponent(s.email)}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
+    }
+
     // === Add / Edit Player ===
     let editingPlayer = null;
 
@@ -1810,6 +2330,25 @@
       await fbSetFormat(v);
       render();
     }
+
+    let tierCostDebounceTimer = null;
+    function onTierCostChange() {
+      clearTimeout(tierCostDebounceTimer);
+      tierCostDebounceTimer = setTimeout(async () => {
+        const v = {
+          tier1Cost: Number(document.getElementById('settings-tier1-cost').value) || 0,
+          tier2Cost: Number(document.getElementById('settings-tier2-cost').value) || 0,
+          tier3Cost: Number(document.getElementById('settings-tier3-cost').value) || 0,
+          individualCost: Number(document.getElementById('settings-tierindividual-cost').value) || 0,
+        };
+        if (!fbReady) return;
+        try {
+          const { db, doc, setDoc } = window.fb;
+          await setDoc(doc(db, 'settings', 'main'), v, { merge: true });
+        } catch (e) { console.error('save tier cost failed:', e); }
+      }, 600);
+    }
+
     async function confirmResetRoster() {
       if (!confirm('¿Borrar TODO el roster, check-ins y ganadores? Esto NO se puede deshacer.')) return;
       if (!confirm('Confirma una vez más: borrar todo.')) return;
@@ -1823,6 +2362,68 @@
       render();
       closeSettings();
     }
+
+    // === Tournament lifecycle ===
+    async function saveTournamentSnapshot() {
+      if (!fbReady) { alert('Sin conexión.'); return; }
+      const defaultName = `Torneo ${new Date().getFullYear()} — ${new Date().toISOString().slice(0,10)}`;
+      const label = prompt('Nombre del snapshot:', defaultName);
+      if (!label) return;
+      try {
+        const { db, collection, addDoc } = window.fb;
+        const snapshot = {
+          name: label,
+          savedAt: Date.now(),
+          format: formatChoice,
+          tierPricing: { ...tierPricing },
+          totalRevenue: totalRevenue(),
+          sponsors: sponsors.map(s => ({ ...s, logo: s.logo ? '[logo omitted]' : null })),
+          roster: SEED_PLAYERS.map(p => ({ ...p })),
+          checkins: { ...checkins },
+          winners: winners.map(w => ({ ...w })),
+          counts: {
+            sponsors: sponsors.length,
+            roster: SEED_PLAYERS.length,
+            checkedIn: Object.values(checkins).filter(c => c && c.time).length,
+            winners: winners.length,
+          },
+        };
+        // logos can be large — store separately if you want; omitted from snapshot to keep doc < 1 MB
+        await addDoc(collection(db, 'tournaments'), snapshot);
+        alert(`Snapshot "${label}" guardado.`);
+      } catch (e) {
+        console.error('saveTournamentSnapshot failed:', e);
+        alert('Error guardando snapshot. Revisa la consola.');
+      }
+    }
+
+    async function startNewTournament() {
+      if (!confirm('¿Empezar un torneo nuevo? Esto borra:\n· Roster\n· Check-ins\n· Ganadores\n· Sponsors\n\nGuarda el snapshot primero si quieres conservar el torneo actual.')) return;
+      if (!confirm('Confirma una vez más: borrar todas las colecciones activas.')) return;
+      await fbResetCheckins();
+      await fbResetWinners();
+      await fbResetRoster();
+      await fbResetSponsors();
+      checkins = {};
+      winners = [];
+      save();
+      saveWinners();
+      render();
+      closeSettings();
+      alert('Listo. Empezar agregando sponsors o jugadores.');
+    }
+
+    // === Admin vs check-in mode ===
+    const IS_ADMIN_VIEW = window.location.pathname.startsWith('/snapshot');
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!IS_ADMIN_VIEW) {
+        document.querySelectorAll('[data-admin-only]').forEach(el => el.style.display = 'none');
+      } else {
+        // Make brand subtitle reflect admin mode
+        const subt = document.querySelector('.brand .subt');
+        if (subt) subt.innerHTML = 'Admin · <span id="format-badge">' + formatLabel() + '</span>';
+      }
+    });
 
     function openRosterExport() {
       document.getElementById('rosterExportModal').classList.add('active');
