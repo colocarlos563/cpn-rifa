@@ -585,16 +585,14 @@
           <span class="cpn">cpn</span>
           <span class="ball">⛳</span>
           <div>
-            <div class="title">Torneo CPN</div>
-            <div class="subt">Check-in · <span id="format-badge">4-man scramble</span></div>
+            <div class="title">Torneo 2026</div>
+            <div class="subt">Check-in · Bahia Beach</div>
           </div>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
-          <button class="header-btn" onclick="openAddPlayer()">+ Jugador</button>
           <button class="header-btn" onclick="openRosterExport()">📋 Lista</button>
           <button class="header-btn" onclick="openRaffle()">🎟️ Sorteo</button>
           <button class="header-btn" onclick="openReport()">Reporte</button>
-          <button class="header-btn" onclick="openSettings()" title="Ajustes">⚙️</button>
         </div>
       </div>
 
@@ -674,10 +672,6 @@
       <div class="modal-actions" id="undo-actions" style="display:none;">
         <button class="btn btn-danger" onclick="undoCheckin()">Deshacer Check-in</button>
       </div>
-
-      <div class="modal-actions" id="edit-player-from-checkin" style="display:none;">
-        <button class="btn btn-secondary" onclick="editPlayerFromCheckin()">✏️ Editar datos del jugador</button>
-      </div>
     </div>
   </div>
 
@@ -693,77 +687,6 @@
       <div class="splash-raffle">🎟️ Inscrito al sorteo</div>
     </div>
     <button class="splash-next" onclick="closeSplash()">Siguiente Jugador →</button>
-  </div>
-
-  <!-- Add Player modal -->
-  <div class="modal-backdrop" id="addPlayerModal">
-    <div class="modal" style="max-width: 460px;">
-      <h2 id="add-player-title">+ Añadir Jugador</h2>
-      <div class="modal-sub">Asigna a un hoyo y cart. Empty carts no cuentan para el registro.</div>
-
-      <div class="field">
-        <label for="add-name">Nombre *</label>
-        <input type="text" id="add-name" autocomplete="off" autocapitalize="words" placeholder="Nombre completo" />
-      </div>
-
-      <div class="form-row" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:16px;">
-        <div class="field" style="margin-bottom:0;">
-          <label for="add-hole">Hoyo *</label>
-          <select id="add-hole">
-            <option value="">— Hoyo —</option>
-          </select>
-        </div>
-        <div class="field" style="margin-bottom:0;">
-          <label for="add-cart">Cart *</label>
-          <select id="add-cart">
-            <option value="A">Cart A</option>
-            <option value="B">Cart B</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="field">
-        <label for="add-sponsor">Sponsor / Equipo (opcional)</label>
-        <input type="text" id="add-sponsor" autocomplete="off" placeholder="Ej. First Bank" />
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn btn-secondary" onclick="closeAddPlayer()">Cancelar</button>
-        <button class="btn btn-primary" id="add-player-confirm" onclick="confirmAddPlayer()">Añadir</button>
-      </div>
-
-      <div class="modal-actions" id="edit-player-actions" style="display:none;">
-        <button class="btn btn-danger" onclick="confirmDeletePlayer()">Eliminar Jugador</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Settings modal -->
-  <div class="modal-backdrop" id="settingsModal">
-    <div class="modal" style="max-width: 460px;">
-      <h2>⚙️ Ajustes</h2>
-      <div class="modal-sub">Cambios se aplican a todos los dispositivos.</div>
-
-      <div class="field">
-        <label for="settings-format">Formato del torneo</label>
-        <select id="settings-format" onchange="onFormatChange()">
-          <option value="4-man">4-man scramble (4 por cart)</option>
-          <option value="2-man">2-man scramble (2 por cart)</option>
-        </select>
-        <div class="hint">Determina cuándo un cart se considera "completo".</div>
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn btn-secondary" onclick="closeSettings()">Cerrar</button>
-      </div>
-
-      <hr style="border:none; border-top:1px solid rgba(255,255,255,0.1); margin:20px 0;">
-      <div style="font-size:0.78rem; text-transform:uppercase; letter-spacing:1.5px; color:#ff6b6b; margin-bottom:10px; font-weight:800;">Zona Peligrosa</div>
-      <div class="modal-actions">
-        <button class="btn btn-danger" onclick="confirmResetRoster()">Borrar Todo el Roster</button>
-      </div>
-      <div class="hint" style="margin-top:8px;">Borra todos los jugadores, check-ins y ganadores. No se puede deshacer.</div>
-    </div>
   </div>
 
   <!-- Roster export modal -->
@@ -795,8 +718,16 @@
 
       <div class="draw-count-row">
         <label for="raffle-count">Ganadores totales:</label>
-        <input type="number" id="raffle-count" min="1" value="3" inputmode="numeric" style="width:90px; padding:8px 12px; border-radius:8px; border:2px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.1); color:white; font-size:0.95rem; outline:none; font-family:inherit;" />
-        <span style="font-size:0.78rem; color:rgba(255,255,255,0.45);">máx: <span id="raffle-max-hint">—</span></span>
+        <select id="raffle-count">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3" selected>3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="8">8</option>
+          <option value="10">10</option>
+        </select>
       </div>
 
       <button class="btn-draw" id="raffle-btn" onclick="drawRaffleWinner()">🎯 Sortear Ganador</button>
@@ -852,16 +783,12 @@
 
   <script>
     // === SEED ROSTER (from xlsx — list still being revised, names will likely change) ===
-    // Dynamic roster from Firestore (was hardcoded in 2026 — see archive/event-2026-data.json)
-    let SEED_PLAYERS = [];
-    let formatChoice = '4-man'; // '2-man' or '4-man'
-    function maxPerCart() { return formatChoice === '2-man' ? 2 : 4; }
-    function formatLabel() { return formatChoice === '2-man' ? '2-man scramble' : '4-man scramble'; }
+    const SEED_PLAYERS = [{"num":1,"tee":"1A","name":"Roberto Vazquez","sponsor":"Individual"},{"num":2,"tee":"1A","name":"Dacio Pasarell","sponsor":"Individual"},{"num":3,"tee":"1A","name":"Benjamin Aruca","sponsor":"Buns"},{"num":4,"tee":"1A","name":"Fidel Alonso","sponsor":"Buns"},{"num":5,"tee":"1B","name":"Osvaldo Rodriguez","sponsor":"Americas Leading Finance"},{"num":6,"tee":"1B","name":"Andres Rodriguez","sponsor":"Americas Leading Finance"},{"num":7,"tee":"1B","name":"Adalberto Molina","sponsor":"Americas Leading Finance"},{"num":8,"tee":"1B","name":"Marcos Morales","sponsor":"Americas Leading Finance"},{"num":9,"tee":"2A","name":"Daniel Font","sponsor":"Benjamin Moore"},{"num":10,"tee":"2A","name":"Jorge Hernandez","sponsor":"Benjamin Moore"},{"num":11,"tee":"2A","name":"Jose Santiago","sponsor":"Individual"},{"num":12,"tee":"2A","name":"Alejandro Quilichini","sponsor":"Individual"},{"num":13,"tee":"2B","name":"Ian Figueroa","sponsor":"Individual"},{"num":14,"tee":"2B","name":"Jose Castellanos","sponsor":"Individual"},{"num":15,"tee":"2B","name":"Martin Aruca","sponsor":"Los Chavales"},{"num":16,"tee":"2B","name":"Jose Hernandez","sponsor":"Los Chavales"},{"num":17,"tee":"3A","name":"Rafael Lama","sponsor":"El Nuevo Dia"},{"num":18,"tee":"3A","name":"Dennis Rivera","sponsor":"El Nuevo Dia"},{"num":19,"tee":"3A","name":"Eric Freytes","sponsor":"Puttanesca"},{"num":20,"tee":"3A","name":"Mundi Morin","sponsor":"Puttanesca"},{"num":21,"tee":"3B","name":"Juan Carlos Muñoz","sponsor":"F&R"},{"num":22,"tee":"3B","name":"Jose Fullana","sponsor":"F&R"},{"num":23,"tee":"3B","name":"Victor Curet","sponsor":"Farmacias Caridad"},{"num":24,"tee":"3B","name":"George Neste","sponsor":"Farmacias Caridad"},{"num":25,"tee":"4A","name":"Jorge Pierluisi","sponsor":"bMedia"},{"num":26,"tee":"4A","name":"Miguel Ferraiuoli","sponsor":"bMedia"},{"num":27,"tee":"4A","name":"Alfredo Colon","sponsor":"bMedia"},{"num":28,"tee":"4A","name":"Francisco de Zengotita","sponsor":"bMedia"},{"num":29,"tee":"5A","name":"Luis Davila","sponsor":"Individual"},{"num":30,"tee":"5A","name":"Cesar Vivaldi","sponsor":"Individual"},{"num":31,"tee":"5A","name":"Raul Delgado","sponsor":"MD CPA"},{"num":32,"tee":"5A","name":"Francisco Medina","sponsor":"MD CPA"},{"num":33,"tee":"5B","name":"Gustavo Bermudo","sponsor":"Wap"},{"num":34,"tee":"5B","name":"Iky Kodesh","sponsor":"Wap"},{"num":35,"tee":"5B","name":"Cesar Gomez","sponsor":"SMR"},{"num":36,"tee":"5B","name":"Benchi Aldarondo","sponsor":"SMR"},{"num":37,"tee":"6A","name":"Christian Ortiz 1","sponsor":"Individual"},{"num":38,"tee":"6A","name":"Christian Ortiz 2","sponsor":"Individual"},{"num":39,"tee":"6A","name":"Javier Doval","sponsor":"Individual"},{"num":40,"tee":"6A","name":"Luis Aleman","sponsor":"Individual"},{"num":41,"tee":"6B","name":"Julian Guzman Sr","sponsor":"V Suarez"},{"num":42,"tee":"6B","name":"Julian Guzman Jr","sponsor":"V Suarez"},{"num":43,"tee":"6B","name":"Eduardo Torres","sponsor":"Paperhouse"},{"num":44,"tee":"6B","name":"Sammy Rivera","sponsor":"Paperhouse"},{"num":45,"tee":"7A","name":"Alexis Colon","sponsor":"First Bank"},{"num":46,"tee":"7A","name":"Derek Feliciano","sponsor":"First Bank"},{"num":47,"tee":"7A","name":"Miguel Lopez","sponsor":"First Bank"},{"num":48,"tee":"7A","name":"Edwin Pizarro","sponsor":"First Bank"},{"num":49,"tee":"7B","name":"Luis Diaz","sponsor":"First Bank"},{"num":50,"tee":"7B","name":"Francisco Delgado","sponsor":"First Bank"},{"num":51,"tee":"7B","name":"Christian Alcala","sponsor":"Alcala Law Office"},{"num":52,"tee":"7B","name":"Christopher Alcala","sponsor":"Alcala Law Office"},{"num":53,"tee":"8A","name":"Jorge Maldonado","sponsor":"Antilles Insurance"},{"num":54,"tee":"8A","name":"Mario Carbia","sponsor":"Antilles Insurance"},{"num":55,"tee":"8A","name":"Jose Chaves","sponsor":"Antilles Insurance"},{"num":56,"tee":"8A","name":"Carlos Jimenez","sponsor":"Antilles Insurance"},{"num":57,"tee":"8B","name":"Fabio Posada","sponsor":"Retail Group"},{"num":58,"tee":"8B","name":"Milagros Cabrera","sponsor":"Retail Group"},{"num":59,"tee":"8B","name":"Valeria Cabrera","sponsor":"Retail Group"},{"num":60,"tee":"8B","name":"Julia Cabrera","sponsor":"Retail Group"},{"num":61,"tee":"9A","name":"Heberto Diaz","sponsor":"Ferries del Caribe"},{"num":62,"tee":"9A","name":"Fernando Valledor","sponsor":"Ferries del Caribe"},{"num":63,"tee":"9A","name":"Rafael Vega","sponsor":"International Printing"},{"num":64,"tee":"9A","name":"Adrian Vega","sponsor":"International Printing"},{"num":65,"tee":"10A","name":"Jose Carlos Villares","sponsor":"Flagship"},{"num":66,"tee":"10A","name":"Daniel Diaz","sponsor":"Flagship"},{"num":67,"tee":"10A","name":"Gustavo Villares","sponsor":"Flagship"},{"num":68,"tee":"10A","name":"Jacob Wegrzyn","sponsor":"Flagship"},{"num":69,"tee":"10B","name":"Annuar Azizi","sponsor":"Titin Foundation"},{"num":70,"tee":"10B","name":"Hector Rodriguez","sponsor":"Titin Foundation"},{"num":71,"tee":"10B","name":"Narciso Cruz","sponsor":"Titin Foundation"},{"num":72,"tee":"10B","name":"Ambrose Ramsahai","sponsor":"Titin Foundation"},{"num":73,"tee":"11A","name":"Enrique Vila","sponsor":"Iedifiko"},{"num":74,"tee":"11A","name":"Alfredo Firpi","sponsor":"Iedifiko"},{"num":75,"tee":"11A","name":"Alberto Firpi","sponsor":"Iedifiko"},{"num":76,"tee":"11A","name":"Alfredo J. Firpi","sponsor":"Iedifiko"},{"num":77,"tee":"11B","name":"Javier Jimenez","sponsor":"Tekpro"},{"num":78,"tee":"11B","name":"Ramon Vazquez","sponsor":"Tekpro"},{"num":79,"tee":"11B","name":"Anthony Cardona","sponsor":"Individual"},{"num":80,"tee":"11B","name":"Javier Tirado","sponsor":"Individual"},{"num":81,"tee":"12A","name":"Luis Díaz","sponsor":"Individual"},{"num":82,"tee":"12A","name":"Luis Llach","sponsor":"Individual"},{"num":83,"tee":"12A","name":"Eduardo Nuñez","sponsor":"Individual"},{"num":84,"tee":"12A","name":"Javier Cruz","sponsor":"Individual"},{"num":85,"tee":"12B","name":"Carlos Arzola","sponsor":"Banco Popular"},{"num":86,"tee":"12B","name":"Carlos Fernandez","sponsor":"Banco Popular"},{"num":87,"tee":"12B","name":"Miguel Rodriguez","sponsor":"Banco Popular"},{"num":88,"tee":"12B","name":"Javier Vivas","sponsor":"Banco Popular"},{"num":89,"tee":"13A","name":"Fernando de Leon","sponsor":"Individual"},{"num":90,"tee":"13A","name":"Ryan Arrieta","sponsor":"Individual"},{"num":91,"tee":"13A","name":"Gonzalo Solis","sponsor":"Individual"},{"num":92,"tee":"13A","name":"Rafael Rosario","sponsor":"Individual"},{"num":93,"tee":"13B","name":"Alina Fernandez","sponsor":"Individual"},{"num":94,"tee":"13B","name":"Karen Calvesbert","sponsor":"Individual"},{"num":95,"tee":"13B","name":"Viviana Soler","sponsor":"Individual"},{"num":96,"tee":"13B","name":"Neysa Sanchez","sponsor":"Individual"},{"num":97,"tee":"14A","name":"Ana Recourt","sponsor":"DWH"},{"num":98,"tee":"14A","name":"Marta Hernandez","sponsor":"DWH"},{"num":99,"tee":"14A","name":"Francisco Martin Sr","sponsor":"Individual"},{"num":100,"tee":"14A","name":"Francisco Martin Jr","sponsor":"Individual"},{"num":101,"tee":"14B","name":"Ronald Berrios","sponsor":"Lanco"},{"num":102,"tee":"14B","name":"Erick Gonzalez","sponsor":"Lanco"},{"num":103,"tee":"14B","name":"Hector Alvarado","sponsor":"Lanco"},{"num":104,"tee":"14B","name":"Arnaldo Alvarado","sponsor":"Lanco"},{"num":105,"tee":"15A","name":"Jorge Cañellas","sponsor":"Cañellas"},{"num":106,"tee":"15A","name":"Gabriela Cañellas","sponsor":"Cañellas"},{"num":107,"tee":"15A","name":"Luis Muñiz","sponsor":"Individual"},{"num":108,"tee":"15A","name":"Naomi Muñiz","sponsor":"Individual"},{"num":109,"tee":"16A","name":"Ferdinand Rodriguez","sponsor":"Individual"},{"num":110,"tee":"16A","name":"Andres Muñiz","sponsor":"Individual"},{"num":111,"tee":"16A","name":"Jean Paul Miranda","sponsor":"JP Miranda"},{"num":112,"tee":"16A","name":"Gabriel Hernandez","sponsor":"JP Miranda"},{"num":113,"tee":"16B","name":"Joel Rodriguez","sponsor":"Individual"},{"num":114,"tee":"16B","name":"Ricardo Santana","sponsor":"Individual"},{"num":115,"tee":"16B","name":"Diego Muñiz","sponsor":"Bayamon Medical"},{"num":116,"tee":"16B","name":"Cesar Hernandez","sponsor":"Bayamon Medical"},{"num":117,"tee":"17A","name":"Carlos Colon","sponsor":"Colon Izquierdo Law"},{"num":118,"tee":"17A","name":"Christian Colon","sponsor":"Colon Izquierdo Law"},{"num":119,"tee":"17A","name":"Juan Pablo Rosado","sponsor":"Caro Bennazar"},{"num":120,"tee":"17A","name":"Freddy Pagani","sponsor":"Caro Bennazar"},{"num":121,"tee":"18A","name":"Carlos Gonzalez","sponsor":"Americas Leading Finance"},{"num":122,"tee":"18A","name":"Ricardo Velez","sponsor":"Americas Leading Finance"},{"num":123,"tee":"18A","name":"Jose Torregrosa","sponsor":"Americas Leading Finance"},{"num":124,"tee":"18A","name":"Manuel Martin","sponsor":"Americas Leading Finance"},{"num":125,"tee":"18B","name":"Jose Calderon","sponsor":"Hub"},{"num":126,"tee":"18B","name":"Roberto Hernandez","sponsor":"Hub"},{"num":127,"tee":"18B","name":"Emilio Fagundo","sponsor":"Hub"},{"num":128,"tee":"18B","name":"Lucas Bennet","sponsor":"Hub"}];
 
     const PIN = 'CPN2026';
     const PIN_KEY = 'cpn_pin_ok_v1';
-    const CHECKIN_KEY = 'cpn_checkins_v3';
-    const WINNERS_KEY = 'cpn_winners_v2';
+    const CHECKIN_KEY = 'cpn_checkins_v2';
+    const WINNERS_KEY = 'cpn_winners_v1';
     let winners = JSON.parse(localStorage.getItem(WINNERS_KEY) || '[]');
 
     function saveWinners() {
@@ -916,49 +843,7 @@
 
     withFb(() => {
       fbReady = true;
-      const { db, collection, onSnapshot, query, orderBy, doc } = window.fb;
-
-      // Roster — source of truth for SEED_PLAYERS
-      onSnapshot(query(collection(db, 'roster'), orderBy('addedAt')),
-        (snap) => {
-          SEED_PLAYERS = [];
-          snap.forEach(d => {
-            const data = d.data();
-            const tee = `${data.hole}${data.cart}`;
-            SEED_PLAYERS.push({
-              num: d.id,                     // Firestore doc id is the player id
-              hole: data.hole,
-              cart: data.cart,
-              tee,
-              name: data.name,
-              sponsor: data.sponsor || '',
-              addedAt: data.addedAt || 0,
-            });
-          });
-          if (typeof render === 'function') render();
-          if (typeof renderRaffleStage === 'function' &&
-              document.getElementById('raffleModal').classList.contains('active')) {
-            renderRaffleStage();
-          }
-        },
-        (err) => console.error('roster sync error:', err)
-      );
-
-      // Settings (format choice)
-      onSnapshot(doc(db, 'settings', 'main'),
-        (snap) => {
-          const data = snap.data() || {};
-          if (data.format === '2-man' || data.format === '4-man') {
-            formatChoice = data.format;
-          }
-          const fmtBadge = document.getElementById('format-badge');
-          if (fmtBadge) fmtBadge.textContent = formatLabel();
-          const fmtSel = document.getElementById('settings-format');
-          if (fmtSel) fmtSel.value = formatChoice;
-          if (typeof render === 'function') render();
-        },
-        (err) => console.error('settings sync error:', err)
-      );
+      const { db, collection, onSnapshot, query, orderBy } = window.fb;
 
       onSnapshot(collection(db, 'checkins'),
         (snap) => {
@@ -984,49 +869,6 @@
         (err) => console.error('winners sync error:', err)
       );
     });
-
-    // Roster + settings helpers
-    async function fbAddPlayer(player) {
-      if (!fbReady) return null;
-      try {
-        const { db, collection, addDoc } = window.fb;
-        const ref = await addDoc(collection(db, 'roster'), { ...player, addedAt: Date.now() });
-        return ref.id;
-      } catch (e) { console.error('addPlayer failed:', e); return null; }
-    }
-    async function fbUpdatePlayer(pnum, fields) {
-      if (!fbReady) return;
-      try {
-        const { db, doc, setDoc } = window.fb;
-        await setDoc(doc(db, 'roster', String(pnum)), fields, { merge: true });
-      } catch (e) { console.error('updatePlayer failed:', e); }
-    }
-    async function fbDeletePlayer(pnum) {
-      if (!fbReady) return;
-      try {
-        const { db, doc, deleteDoc } = window.fb;
-        await deleteDoc(doc(db, 'roster', String(pnum)));
-        // Also delete any check-in tied to this player
-        await deleteDoc(doc(db, 'checkins', String(pnum)));
-      } catch (e) { console.error('deletePlayer failed:', e); }
-    }
-    async function fbSetFormat(value) {
-      if (!fbReady) return;
-      try {
-        const { db, doc, setDoc } = window.fb;
-        await setDoc(doc(db, 'settings', 'main'), { format: value }, { merge: true });
-      } catch (e) { console.error('setFormat failed:', e); }
-    }
-    async function fbResetRoster() {
-      if (!fbReady) return;
-      try {
-        const { db, collection, getDocs, writeBatch } = window.fb;
-        const snap = await getDocs(collection(db, 'roster'));
-        const batch = writeBatch(db);
-        snap.forEach(d => batch.delete(d.ref));
-        await batch.commit();
-      } catch (e) { console.error('resetRoster failed:', e); }
-    }
 
     async function fbSetCheckin(pnum, data) {
       if (!fbReady) return;
@@ -1145,15 +987,6 @@
       const list = document.getElementById('list');
 
       if (players.length === 0) {
-        if (SEED_PLAYERS.length === 0 && !searchQ) {
-          list.innerHTML = `
-            <div style="text-align:center; padding:40px 20px;">
-              <div style="font-size:1.1rem; font-weight:700; margin-bottom:10px;">Roster vacío</div>
-              <div style="color:rgba(255,255,255,0.55); margin-bottom:24px; font-size:0.95rem;">Empieza a añadir jugadores con su hoyo y cart.</div>
-              <button class="btn-add" onclick="openAddPlayer()" style="max-width:280px; margin:0 auto; display:block;">+ Añadir Primer Jugador</button>
-            </div>`;
-          return;
-        }
         const msg = searchQ
           ? 'No hay coincidencias.'
           : activeFilter === 'pending' ? '🎉 Todos los jugadores están registrados'
@@ -1174,12 +1007,11 @@
         const group = groups[tee];
         const allInGroup = SEED_PLAYERS.filter(p => p.tee === tee);
         const checkedInGroup = allInGroup.filter(isCheckedIn).length;
-        const cap = maxPerCart();
         return `
           <div class="tee-group">
             <div class="tee-header">
               <span>Tee ${escapeHtml(tee)}</span>
-              <span class="count-badge">${checkedInGroup}/${allInGroup.length}${allInGroup.length < cap ? ` · cap ${cap}` : ''}</span>
+              <span class="count-badge">${checkedInGroup}/${allInGroup.length}</span>
             </div>
             ${group.map(p => renderPlayerCard(p)).join('')}
           </div>
@@ -1189,7 +1021,7 @@
       list.innerHTML = html;
 
       list.querySelectorAll('[data-pnum]').forEach(el => {
-        el.addEventListener('click', () => openCheckin(el.dataset.pnum));
+        el.addEventListener('click', () => openCheckin(parseInt(el.dataset.pnum)));
       });
     }
 
@@ -1304,8 +1136,6 @@
         undoActions.style.display = 'none';
       }
 
-      document.getElementById('edit-player-from-checkin').style.display = 'flex';
-
       raffleRow.onclick = (e) => {
         if (e.target === raffleToggle) return;
         raffleToggle.checked = !raffleToggle.checked;
@@ -1317,13 +1147,6 @@
     function closeCheckin() {
       document.getElementById('checkinModal').classList.remove('active');
       modalPlayer = null;
-    }
-
-    function editPlayerFromCheckin() {
-      if (!modalPlayer) return;
-      const p = modalPlayer;
-      closeCheckin();
-      openEditPlayer(p);
     }
 
     function readModalForm() {
@@ -1470,15 +1293,7 @@
         const c = checkins[p.num];
         return c && c.raffle;
       }).length;
-      const checkedInTotal = Object.values(checkins).filter(c => c && c.time).length;
-      const cap = Math.max(1, checkedInTotal); // can draw up to total registered
-      const inp = document.getElementById('raffle-count');
-      inp.max = String(cap);
-      let needed = parseInt(inp.value);
-      if (!Number.isFinite(needed) || needed < 1) { needed = 1; inp.value = '1'; }
-      if (checkedInTotal > 0 && needed > checkedInTotal) { needed = checkedInTotal; inp.value = String(checkedInTotal); }
-      const hint = document.getElementById('raffle-max-hint');
-      if (hint) hint.textContent = String(checkedInTotal);
+      const needed = parseInt(document.getElementById('raffle-count').value);
       const btn = document.getElementById('raffle-btn');
 
       document.getElementById('raffle-sub').textContent =
@@ -1579,9 +1394,6 @@
       }
     }
 
-    document.addEventListener('input', e => {
-      if (e.target && e.target.id === 'raffle-count') renderRaffleStage();
-    });
     document.addEventListener('change', e => {
       if (e.target && e.target.id === 'raffle-count') renderRaffleStage();
     });
@@ -1630,9 +1442,9 @@
         .sort((a,b) => compareTee(a.tee, b.tee));
 
       document.getElementById('open-title').textContent =
-        `Carts incompletos (${openSpaces.length})`;
+        `Foursomes con espacios abiertos (${openSpaces.length})`;
       const openHtml = openSpaces.length === 0
-        ? '<div class="empty" style="padding:14px;">Todos los carts completos</div>'
+        ? '<div class="empty" style="padding:14px;">Todos los foursomes completos</div>'
         : openSpaces.map(g => `
           <div class="report-row" style="flex-wrap:wrap;">
             <span class="tee-mini">${escapeHtml(g.tee)}</span>
@@ -1714,114 +1526,6 @@
       a.href = URL.createObjectURL(blob);
       a.download = `cpn-checkin-${new Date().toISOString().slice(0,10)}.csv`;
       a.click();
-    }
-
-    // === Add / Edit Player ===
-    let editingPlayer = null;
-
-    function populateHoleSelect() {
-      const sel = document.getElementById('add-hole');
-      if (sel.options.length > 1) return;
-      for (let h = 1; h <= 18; h++) {
-        const opt = document.createElement('option');
-        opt.value = String(h);
-        opt.textContent = `Hoyo ${h}`;
-        sel.appendChild(opt);
-      }
-    }
-
-    function openAddPlayer() {
-      populateHoleSelect();
-      editingPlayer = null;
-      document.getElementById('add-player-title').textContent = '+ Añadir Jugador';
-      document.getElementById('add-player-confirm').textContent = 'Añadir';
-      document.getElementById('edit-player-actions').style.display = 'none';
-      document.getElementById('add-name').value = '';
-      document.getElementById('add-hole').value = '';
-      document.getElementById('add-cart').value = 'A';
-      document.getElementById('add-sponsor').value = '';
-      document.getElementById('addPlayerModal').classList.add('active');
-      setTimeout(() => document.getElementById('add-name').focus(), 80);
-    }
-
-    function openEditPlayer(p) {
-      populateHoleSelect();
-      editingPlayer = p;
-      document.getElementById('add-player-title').textContent = 'Editar Jugador';
-      document.getElementById('add-player-confirm').textContent = 'Guardar';
-      document.getElementById('edit-player-actions').style.display = 'flex';
-      document.getElementById('add-name').value = p.name;
-      document.getElementById('add-hole').value = String(p.hole);
-      document.getElementById('add-cart').value = p.cart;
-      document.getElementById('add-sponsor').value = p.sponsor || '';
-      document.getElementById('addPlayerModal').classList.add('active');
-    }
-
-    function closeAddPlayer() {
-      document.getElementById('addPlayerModal').classList.remove('active');
-      editingPlayer = null;
-    }
-
-    async function confirmAddPlayer() {
-      const name = document.getElementById('add-name').value.trim();
-      const hole = parseInt(document.getElementById('add-hole').value);
-      const cart = document.getElementById('add-cart').value;
-      const sponsor = document.getElementById('add-sponsor').value.trim();
-
-      if (!name) { alert('El nombre es requerido.'); document.getElementById('add-name').focus(); return; }
-      if (!hole) { alert('Selecciona un hoyo.'); document.getElementById('add-hole').focus(); return; }
-      if (cart !== 'A' && cart !== 'B') { alert('Cart inválido.'); return; }
-
-      // Capacity check
-      const tee = `${hole}${cart}`;
-      const inCart = SEED_PLAYERS.filter(p => p.tee === tee && (!editingPlayer || p.num !== editingPlayer.num));
-      if (inCart.length >= maxPerCart()) {
-        if (!confirm(`Cart ${tee} ya tiene ${inCart.length} jugador(es) (máx ${maxPerCart()} en ${formatLabel()}). ¿Añadir igual?`)) return;
-      }
-
-      const data = { name, hole, cart, sponsor };
-      if (editingPlayer) {
-        await fbUpdatePlayer(editingPlayer.num, data);
-      } else {
-        await fbAddPlayer(data);
-      }
-      closeAddPlayer();
-    }
-
-    async function confirmDeletePlayer() {
-      if (!editingPlayer) return;
-      if (!confirm(`¿Eliminar a ${editingPlayer.name} del roster? Esto también borra su check-in si tiene.`)) return;
-      await fbDeletePlayer(editingPlayer.num);
-      closeAddPlayer();
-    }
-
-    // === Settings ===
-    function openSettings() {
-      document.getElementById('settings-format').value = formatChoice;
-      document.getElementById('settingsModal').classList.add('active');
-    }
-    function closeSettings() {
-      document.getElementById('settingsModal').classList.remove('active');
-    }
-    async function onFormatChange() {
-      const v = document.getElementById('settings-format').value;
-      formatChoice = v;
-      document.getElementById('format-badge').textContent = formatLabel();
-      await fbSetFormat(v);
-      render();
-    }
-    async function confirmResetRoster() {
-      if (!confirm('¿Borrar TODO el roster, check-ins y ganadores? Esto NO se puede deshacer.')) return;
-      if (!confirm('Confirma una vez más: borrar todo.')) return;
-      await fbResetCheckins();
-      await fbResetWinners();
-      await fbResetRoster();
-      checkins = {};
-      winners = [];
-      save();
-      saveWinners();
-      render();
-      closeSettings();
     }
 
     function openRosterExport() {

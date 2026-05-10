@@ -1,0 +1,758 @@
+{
+  "event": "Torneo CPN 2026",
+  "venue": "Bahia Beach",
+  "date": "2026-05-08",
+  "archived_at": "2026-05-09",
+  "totals": {
+    "checkins": 118,
+    "winners": 4
+  },
+  "checkins": {
+    "1": {
+      "alternateName": null,
+      "raffle": true,
+      "handicap": 24,
+      "time": "07:36 AM"
+    },
+    "10": {
+      "handicap": 16,
+      "time": "08:19 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "101": {
+      "time": "08:13 AM",
+      "handicap": 20,
+      "raffle": true,
+      "alternateName": null
+    },
+    "102": {
+      "alternateName": null,
+      "raffle": true,
+      "handicap": 19,
+      "time": "07:58 AM"
+    },
+    "103": {
+      "raffle": true,
+      "alternateName": "Ariel Rondon",
+      "time": "08:31 AM",
+      "handicap": 20
+    },
+    "104": {
+      "alternateName": null,
+      "raffle": true,
+      "handicap": 20,
+      "time": "08:30 AM"
+    },
+    "105": {
+      "alternateName": null,
+      "raffle": true,
+      "time": "08:11 AM",
+      "handicap": 15
+    },
+    "106": {
+      "handicap": 24,
+      "time": "08:11 AM",
+      "raffle": true,
+      "alternateName": null
+    },
+    "109": {
+      "handicap": 14,
+      "time": "07:33 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "11": {
+      "raffle": true,
+      "alternateName": null,
+      "time": "08:07 AM",
+      "handicap": 24
+    },
+    "110": {
+      "time": "07:33 AM",
+      "handicap": 10.5,
+      "alternateName": null,
+      "raffle": true
+    },
+    "111": {
+      "handicap": 16,
+      "time": "07:13 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "112": {
+      "alternateName": null,
+      "raffle": true,
+      "handicap": 24,
+      "time": "07:17 AM"
+    },
+    "113": {
+      "time": "07:20 AM",
+      "handicap": 14.3,
+      "raffle": true,
+      "alternateName": null
+    },
+    "114": {
+      "raffle": true,
+      "alternateName": null,
+      "time": "07:19 AM",
+      "handicap": 19
+    },
+    "115": {
+      "handicap": 21,
+      "time": "08:16 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "116": {
+      "time": "08:14 AM",
+      "handicap": 17.6,
+      "alternateName": null,
+      "raffle": true
+    },
+    "117": {
+      "handicap": 17.7,
+      "time": "07:40 AM",
+      "raffle": true,
+      "alternateName": null
+    },
+    "118": {
+      "raffle": true,
+      "alternateName": null,
+      "handicap": 12,
+      "time": "07:55 AM"
+    },
+    "119": {
+      "alternateName": null,
+      "raffle": true,
+      "time": "07:56 AM",
+      "handicap": 14
+    },
+    "12": {
+      "alternateName": null,
+      "raffle": true,
+      "time": "08:37 AM",
+      "handicap": 24
+    },
+    "120": {
+      "handicap": 24,
+      "time": "07:56 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "121": {
+      "raffle": true,
+      "alternateName": "Jose Davila",
+      "time": "08:45 AM",
+      "handicap": 13
+    },
+    "122": {
+      "raffle": true,
+      "alternateName": "Alberto Castañer",
+      "handicap": 17,
+      "time": "07:45 AM"
+    },
+    "123": {
+      "handicap": 16,
+      "time": "08:04 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "124": {
+      "time": "08:15 AM",
+      "handicap": 20,
+      "raffle": true,
+      "alternateName": null
+    },
+    "125": {
+      "alternateName": null,
+      "raffle": true,
+      "handicap": 20,
+      "time": "08:18 AM"
+    },
+    "126": {
+      "handicap": 20,
+      "time": "08:19 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "127": {
+      "handicap": 20,
+      "time": "08:24 AM",
+      "raffle": true,
+      "alternateName": null
+    },
+    "128": {
+      "raffle": true,
+      "alternateName": null,
+      "handicap": 20,
+      "time": "08:24 AM"
+    },
+    "13": {
+      "alternateName": null,
+      "raffle": true,
+      "handicap": 14.1,
+      "time": "08:02 AM"
+    },
+    "14": {
+      "handicap": 6,
+      "time": "08:40 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "15": {
+      "time": "08:16 AM",
+      "handicap": 12,
+      "alternateName": null,
+      "raffle": true
+    },
+    "16": {
+      "handicap": 21.1,
+      "time": "08:12 AM",
+      "alternateName": null,
+      "raffle": false
+    },
+    "17": {
+      "time": "07:48 AM",
+      "handicap": 24,
+      "raffle": true,
+      "alternateName": "Alejandro Zapata"
+    },
+    "18": {
+      "handicap": 20,
+      "time": "08:14 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "19": {
+      "time": "08:33 AM",
+      "handicap": 24,
+      "raffle": false,
+      "alternateName": null
+    },
+    "2": {
+      "time": "08:17 AM",
+      "handicap": 17,
+      "raffle": true,
+      "alternateName": null
+    },
+    "20": {
+      "handicap": 20,
+      "time": "09:00 AM",
+      "alternateName": null,
+      "raffle": false
+    },
+    "21": {
+      "time": "08:08 AM",
+      "handicap": 14,
+      "raffle": true,
+      "alternateName": null
+    },
+    "22": {
+      "time": "07:47 AM",
+      "handicap": 15,
+      "alternateName": null,
+      "raffle": true
+    },
+    "23": {
+      "raffle": true,
+      "alternateName": null,
+      "handicap": 15,
+      "time": "08:47 AM"
+    },
+    "24": {
+      "handicap": 6,
+      "time": "08:40 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "25": {
+      "alternateName": null,
+      "raffle": true,
+      "handicap": 15,
+      "time": "08:12 AM"
+    },
+    "26": {
+      "handicap": 12,
+      "time": "08:53 AM",
+      "raffle": true,
+      "alternateName": "Miguel Ferraiouli"
+    },
+    "27": {
+      "raffle": false,
+      "alternateName": null,
+      "time": "08:59 AM",
+      "handicap": 0
+    },
+    "28": {
+      "raffle": true,
+      "alternateName": null,
+      "time": "08:52 AM",
+      "handicap": 18
+    },
+    "29": {
+      "handicap": 24,
+      "time": "08:23 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "3": {
+      "time": "08:42 AM",
+      "handicap": 12,
+      "alternateName": null,
+      "raffle": true
+    },
+    "30": {
+      "handicap": 17,
+      "time": "07:58 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "31": {
+      "handicap": 24,
+      "time": "08:36 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "32": {
+      "handicap": 16,
+      "time": "08:35 AM",
+      "raffle": true,
+      "alternateName": null
+    },
+    "33": {
+      "time": "08:27 AM",
+      "handicap": 24,
+      "alternateName": null,
+      "raffle": true
+    },
+    "34": {
+      "handicap": 24,
+      "time": "08:27 AM",
+      "raffle": true,
+      "alternateName": null
+    },
+    "35": {
+      "alternateName": null,
+      "raffle": true,
+      "handicap": 20,
+      "time": "08:25 AM"
+    },
+    "36": {
+      "time": "08:25 AM",
+      "handicap": 14,
+      "alternateName": null,
+      "raffle": true
+    },
+    "39": {
+      "time": "08:53 AM",
+      "handicap": 20,
+      "alternateName": null,
+      "raffle": true
+    },
+    "4": {
+      "alternateName": null,
+      "raffle": true,
+      "handicap": 18,
+      "time": "08:15 AM"
+    },
+    "40": {
+      "raffle": false,
+      "alternateName": null,
+      "time": "09:00 AM",
+      "handicap": 24
+    },
+    "41": {
+      "handicap": 21,
+      "time": "08:37 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "42": {
+      "time": "08:37 AM",
+      "handicap": 18,
+      "raffle": false,
+      "alternateName": null
+    },
+    "43": {
+      "time": "08:19 AM",
+      "handicap": 20,
+      "raffle": true,
+      "alternateName": null
+    },
+    "44": {
+      "handicap": 14,
+      "time": "08:19 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "45": {
+      "handicap": 24,
+      "time": "08:04 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "46": {
+      "alternateName": null,
+      "raffle": true,
+      "time": "08:09 AM",
+      "handicap": 0
+    },
+    "47": {
+      "raffle": true,
+      "alternateName": null,
+      "time": "08:23 AM",
+      "handicap": 16
+    },
+    "48": {
+      "raffle": true,
+      "alternateName": null,
+      "time": "08:46 AM",
+      "handicap": 16
+    },
+    "49": {
+      "alternateName": null,
+      "raffle": true,
+      "time": "07:31 AM",
+      "handicap": 24
+    },
+    "5": {
+      "time": "08:29 AM",
+      "handicap": 12,
+      "raffle": true,
+      "alternateName": null
+    },
+    "50": {
+      "alternateName": null,
+      "raffle": true,
+      "time": "07:31 AM",
+      "handicap": 24
+    },
+    "51": {
+      "time": "07:57 AM",
+      "handicap": 20,
+      "alternateName": null,
+      "raffle": true
+    },
+    "52": {
+      "raffle": true,
+      "alternateName": null,
+      "time": "07:57 AM",
+      "handicap": 20
+    },
+    "53": {
+      "handicap": 15,
+      "time": "08:31 AM",
+      "raffle": true,
+      "alternateName": null
+    },
+    "54": {
+      "handicap": 14,
+      "time": "08:00 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "55": {
+      "time": "08:36 AM",
+      "handicap": 19,
+      "alternateName": null,
+      "raffle": true
+    },
+    "56": {
+      "alternateName": null,
+      "raffle": true,
+      "handicap": 15,
+      "time": "08:36 AM"
+    },
+    "57": {
+      "alternateName": null,
+      "raffle": true,
+      "time": "07:38 AM",
+      "handicap": 12
+    },
+    "58": {
+      "handicap": 20,
+      "time": "08:09 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "59": {
+      "handicap": 24,
+      "time": "08:10 AM",
+      "alternateName": null,
+      "raffle": false
+    },
+    "6": {
+      "time": "08:31 AM",
+      "handicap": 24,
+      "raffle": true,
+      "alternateName": "Carlos González"
+    },
+    "60": {
+      "handicap": 20,
+      "time": "08:10 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "61": {
+      "time": "08:11 AM",
+      "handicap": 8,
+      "raffle": true,
+      "alternateName": null
+    },
+    "62": {
+      "handicap": 15,
+      "time": "08:21 AM",
+      "raffle": true,
+      "alternateName": null
+    },
+    "63": {
+      "alternateName": null,
+      "raffle": true,
+      "handicap": 20,
+      "time": "08:12 AM"
+    },
+    "64": {
+      "time": "08:12 AM",
+      "handicap": 18,
+      "raffle": true,
+      "alternateName": null
+    },
+    "65": {
+      "time": "07:45 AM",
+      "handicap": 24,
+      "alternateName": null,
+      "raffle": true
+    },
+    "66": {
+      "handicap": 16,
+      "time": "08:20 AM",
+      "raffle": true,
+      "alternateName": null
+    },
+    "67": {
+      "alternateName": null,
+      "raffle": true,
+      "handicap": 6,
+      "time": "08:27 AM"
+    },
+    "68": {
+      "raffle": true,
+      "alternateName": null,
+      "handicap": 8,
+      "time": "08:13 AM"
+    },
+    "69": {
+      "handicap": 11,
+      "time": "08:05 AM",
+      "raffle": true,
+      "alternateName": null
+    },
+    "7": {
+      "raffle": true,
+      "alternateName": null,
+      "handicap": 24,
+      "time": "08:18 AM"
+    },
+    "70": {
+      "handicap": 24,
+      "time": "08:07 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "71": {
+      "time": "07:53 AM",
+      "handicap": 18,
+      "alternateName": null,
+      "raffle": true
+    },
+    "72": {
+      "handicap": 20,
+      "time": "07:53 AM",
+      "raffle": true,
+      "alternateName": null
+    },
+    "73": {
+      "handicap": 16,
+      "time": "07:38 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "74": {
+      "alternateName": null,
+      "raffle": true,
+      "time": "08:19 AM",
+      "handicap": 12
+    },
+    "75": {
+      "alternateName": null,
+      "raffle": true,
+      "time": "08:23 AM",
+      "handicap": 2
+    },
+    "76": {
+      "handicap": 13,
+      "time": "08:24 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "79": {
+      "time": "08:52 AM",
+      "handicap": 20,
+      "raffle": false,
+      "alternateName": null
+    },
+    "8": {
+      "alternateName": null,
+      "raffle": true,
+      "time": "08:05 AM",
+      "handicap": 16
+    },
+    "80": {
+      "handicap": 20,
+      "time": "08:07 AM",
+      "raffle": true,
+      "alternateName": null
+    },
+    "81": {
+      "time": "07:35 AM",
+      "handicap": 24,
+      "raffle": true,
+      "alternateName": null
+    },
+    "82": {
+      "time": "08:20 AM",
+      "handicap": 14,
+      "alternateName": null,
+      "raffle": true
+    },
+    "84": {
+      "handicap": 24,
+      "time": "07:56 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "85": {
+      "time": "08:26 AM",
+      "handicap": 20,
+      "alternateName": "Ignacio Cruz",
+      "raffle": true
+    },
+    "86": {
+      "raffle": true,
+      "alternateName": "Carmen Morales",
+      "handicap": 24,
+      "time": "08:26 AM"
+    },
+    "88": {
+      "alternateName": "Ramón Rosado",
+      "raffle": false,
+      "time": "09:44 AM",
+      "handicap": 20
+    },
+    "89": {
+      "raffle": true,
+      "alternateName": "Alberto Bachman",
+      "handicap": 12,
+      "time": "07:36 AM"
+    },
+    "9": {
+      "handicap": 16,
+      "time": "08:11 AM",
+      "raffle": true,
+      "alternateName": null
+    },
+    "90": {
+      "raffle": true,
+      "alternateName": null,
+      "handicap": 12,
+      "time": "08:39 AM"
+    },
+    "91": {
+      "time": "07:59 AM",
+      "handicap": 19,
+      "raffle": true,
+      "alternateName": null
+    },
+    "92": {
+      "alternateName": null,
+      "raffle": true,
+      "handicap": 15,
+      "time": "08:14 AM"
+    },
+    "93": {
+      "alternateName": null,
+      "raffle": true,
+      "time": "07:44 AM",
+      "handicap": 24
+    },
+    "94": {
+      "time": "07:55 AM",
+      "handicap": 8,
+      "alternateName": null,
+      "raffle": true
+    },
+    "95": {
+      "handicap": 24,
+      "time": "07:43 AM",
+      "raffle": true,
+      "alternateName": null
+    },
+    "96": {
+      "alternateName": null,
+      "raffle": true,
+      "handicap": 24,
+      "time": "07:53 AM"
+    },
+    "97": {
+      "handicap": 20,
+      "time": "07:34 AM",
+      "alternateName": null,
+      "raffle": true
+    },
+    "98": {
+      "handicap": 10,
+      "time": "07:35 AM",
+      "raffle": true,
+      "alternateName": null
+    }
+  },
+  "winners": [
+    {
+      "tee": "8B",
+      "time": "09:04 AM",
+      "name": "Fabio Posada",
+      "sponsor": "Retail Group",
+      "createdAt": 1778245456534,
+      "pnum": 57,
+      "_id": "RaPRiaItPnmdPfyAf2hQ"
+    },
+    {
+      "name": "Miguel Ferraiouli (a)",
+      "tee": "4A",
+      "time": "09:04 AM",
+      "pnum": 26,
+      "createdAt": 1778245474993,
+      "sponsor": "bMedia",
+      "_id": "8sDMCtor1D9XXyNyXSQo"
+    },
+    {
+      "pnum": 70,
+      "createdAt": 1778245488565,
+      "sponsor": "Titin Foundation",
+      "name": "Hector Rodriguez",
+      "tee": "10B",
+      "time": "09:04 AM",
+      "_id": "r96gaG7ADuh0qwvmRuwq"
+    },
+    {
+      "name": "Carmen Morales (a)",
+      "tee": "12B",
+      "time": "09:05 AM",
+      "pnum": 86,
+      "createdAt": 1778245508269,
+      "sponsor": "Banco Popular",
+      "_id": "6FjdOhZyZYw9Q3sA8bJj"
+    }
+  ]
+}
